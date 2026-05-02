@@ -1,31 +1,19 @@
-"use client";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import LoginPage from "@/components/admin/Login";
 
-import Login from "@/components/admin/Login";
-import { authClient } from "@/lib/auth-client";
+export default async function Page() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-const LoginPage = () => {
-  async function onSubmit(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const userData = Object.fromEntries(formData.entries());
-
-    const { data, error } = await authClient.signIn.email({
-      email: userData.email, // required
-      password: userData.password, // required
-      rememberMe: true,
-    });
-
-    if (!data) {
-      alert("login failed");
-    } else {
-      alert("login success");
-    }
+  if (!session?.user) {
+    redirect("/admin/dashboard");
   }
   return (
-    <div>
-      <Login></Login>
-    </div>
+    <>
+      <LoginPage></LoginPage>
+    </>
   );
-};
-
-export default LoginPage;
+}
