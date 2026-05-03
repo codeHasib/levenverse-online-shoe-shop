@@ -1,8 +1,6 @@
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
 import SplashWrapper from "@/components/SplashWrapper";
-import Navbar from "@/components/public/Nav";
-import FloatingCart from "@/components/public/FloatingCart";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -20,9 +18,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${montserrat.variable} h-full antialiased`}>
       <body className={montserrat.className}>
         <SplashWrapper>
-          <Navbar></Navbar>
           {children}
-          <FloatingCart></FloatingCart>
         </SplashWrapper>
       </body>
     </html>
