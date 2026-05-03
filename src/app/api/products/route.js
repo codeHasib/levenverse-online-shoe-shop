@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/db";
 import { Product } from "@/models/Product";
 import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import "@/models/Category";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -74,21 +75,46 @@ export async function POST(req) {
 // }
 
 // temporary get products
+// export async function GET() {
+//   try {
+//     await connectDB();
+
+//     const products = await Product.find().sort({ createdAt: -1 });
+
+//     return NextResponse.json({
+//       success: true,
+//       products,
+//     });
+//   } catch (error) {
+//     console.error("🔥 PRODUCT GET ERROR:", error);
+
+//     return NextResponse.json(
+//       { success: false, error: error.message }, // 👈 IMPORTANT
+//       { status: 500 },
+//     );
+//   }
+// }
+
 export async function GET() {
   try {
     await connectDB();
 
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.find()
+      .populate({
+        path: "categoryId",
+        select: "name slug", // ✅ only needed fields
+      })
+      .sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,
       products,
     });
   } catch (error) {
-    console.error("🔥 PRODUCT GET ERROR:", error);
+    console.error("🔥 PRODUCT POPULATE ERROR:", error);
 
     return NextResponse.json(
-      { success: false, error: error.message }, // 👈 IMPORTANT
+      { success: false, error: error.message },
       { status: 500 },
     );
   }

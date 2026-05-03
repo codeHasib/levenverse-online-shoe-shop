@@ -21,6 +21,9 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
+    deliveryZone: String,
+    deliveryCharge: Number,
+
     items: [
       {
         productId: {
