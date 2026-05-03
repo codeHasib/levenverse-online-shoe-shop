@@ -24,14 +24,14 @@ export default function AdminProducts() {
   });
 
   useEffect(() => {
-    fetch("/api/categories", {cache: "no-store"})
+    fetch("/api/categories", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => setCategories(data.categories || []));
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
-    const res = await fetch("/api/products", {cache: "no-store"});
+    const res = await fetch("/api/products", { cache: "no-store" });
     const data = await res.json();
     setProducts(data.products || []);
   };
@@ -106,7 +106,10 @@ export default function AdminProducts() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
-    const res = await fetch(`/api/products/${id}`, { method: "DELETE", cache: "no-store" });
+    const res = await fetch(`/api/products/${id}`, {
+      method: "DELETE",
+      cache: "no-store",
+    });
     const data = await res.json();
     if (data.success) fetchProducts();
   };
@@ -362,6 +365,14 @@ function ProductFormFields({ form, handleChange, categories }) {
           onChange={handleChange}
           className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-medium focus:border-[#0070f3] outline-none"
         />
+        <a
+          href="https://www.remove.bg/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block my-4 uppercase font-bold text-red-400"
+        >
+          Click to remove the images background
+        </a>
       </div>
     </div>
   );

@@ -51,7 +51,7 @@ export default function FeaturedProducts() {
           </div>
 
           <Link
-            href="/collections"
+            href="/products"
             className="group flex items-center gap-3 text-[#0070f3] text-[11px] tracking-[0.3em] uppercase transition-all"
           >
             See All Products

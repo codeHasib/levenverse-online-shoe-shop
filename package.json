@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@better-auth/mongo-adapter": "^1.6.9",
+    "@emailjs/browser": "^4.4.1",
     "better-auth": "^1.6.9",
     "cloudinary": "^2.10.0",
     "lucide-react": "^1.14.0",
