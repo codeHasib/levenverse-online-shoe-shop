@@ -2,6 +2,9 @@ import { connectDB } from "@/lib/db";
 import { Product } from "@/models/Product";
 import { NextResponse } from "next/server";
 
+
+export const dynamic = "force-dynamic";
+
 export async function DELETE(req, context) {
   try {
     await connectDB();

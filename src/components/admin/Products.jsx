@@ -24,14 +24,14 @@ export default function AdminProducts() {
   });
 
   useEffect(() => {
-    fetch("/api/categories")
+    fetch("/api/categories", {cache: "no-store"})
       .then((res) => res.json())
       .then((data) => setCategories(data.categories || []));
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
-    const res = await fetch("/api/products");
+    const res = await fetch("/api/products", {cache: "no-store"});
     const data = await res.json();
     setProducts(data.products || []);
   };
@@ -53,6 +53,7 @@ export default function AdminProducts() {
 
       for (let img of images) {
         const res = await fetch("/api/upload", {
+          cache: "no-store",
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -87,6 +88,7 @@ export default function AdminProducts() {
     const method = isUpdate ? "PUT" : "POST";
 
     const res = await fetch(url, {
+      cache: "no-store",
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -104,7 +106,7 @@ export default function AdminProducts() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
-    const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/products/${id}`, { method: "DELETE", cache: "no-store" });
     const data = await res.json();
     if (data.success) fetchProducts();
   };

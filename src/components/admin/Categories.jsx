@@ -18,7 +18,7 @@ export default function Categories() {
   const [error, setError] = useState("");
 
   const fetchCategories = async () => {
-    const res = await fetch("/api/categories");
+    const res = await fetch("/api/categories", {cache: "no-store"});
     const data = await res.json();
     setCategories(data.categories || []);
   };
@@ -35,6 +35,7 @@ export default function Categories() {
       setError("");
 
       const res = await fetch("/api/categories", {
+        cache: "no-store",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
@@ -59,7 +60,7 @@ export default function Categories() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Remove this category? This may affect linked products.")) return;
-    const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/categories/${id}`, { method: "DELETE", cache: "no-store" });
     const data = await res.json();
     if (data.success) fetchCategories();
   };

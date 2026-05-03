@@ -2,6 +2,9 @@ import { connectDB } from "@/lib/db";
 import { Review } from "@/models/Review";
 import { NextResponse } from "next/server";
 
+
+export const dynamic = "force-dynamic";
+
 export async function PATCH(req, { params }) {
   try {
     await connectDB();

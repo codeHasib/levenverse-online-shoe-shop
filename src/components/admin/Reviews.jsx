@@ -40,13 +40,13 @@ export default function Reviews() {
   }, []);
 
   const approve = async (id) => {
-    const res = await fetch(`/api/reviews/${id}`, { method: "PATCH" });
+    const res = await fetch(`/api/reviews/${id}`, { method: "PATCH", cache: "no-store" });
     if (res.ok) fetchReviews();
   };
 
   const remove = async (id) => {
     if (!window.confirm("Permanently delete this feedback?")) return;
-    const res = await fetch(`/api/reviews/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/reviews/${id}`, { method: "DELETE", cache: "no-store" });
     if (res.ok) fetchReviews();
   };
 

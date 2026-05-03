@@ -18,7 +18,7 @@ export default function Orders() {
   const [updatingId, setUpdatingId] = useState(null);
 
   const fetchOrders = async () => {
-    const res = await fetch("/api/orders");
+    const res = await fetch("/api/orders", {cache: "no-store"});
     const data = await res.json();
     setOrders(data.orders || []);
   };
@@ -30,6 +30,7 @@ export default function Orders() {
   const updateStatus = async (id, status) => {
     setUpdatingId(id);
     await fetch(`/api/orders/${id}`, {
+      cache: "no-store",
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),

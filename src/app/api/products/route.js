@@ -3,6 +3,9 @@ import { Product } from "@/models/Product";
 import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 import { NextResponse } from "next/server";
 
+
+export const dynamic = "force-dynamic";
+
 // CREATE PRODUCT (WITH CLOUDINARY)
 export async function POST(req) {
   try {
