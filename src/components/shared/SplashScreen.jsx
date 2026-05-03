@@ -9,11 +9,7 @@ export default function SplashScreen({ onComplete }) {
   const [step, setStep] = useState(0);
 
   // The sequence of messages
-  const messages = [
-    "The best shoe shop in Qatar",
-    "Get your shoes at the best price",
-    "Step into the future of footwear",
-  ];
+  const messages = ["The best shoe shop in Qatar"];
 
   useEffect(() => {
     // Cycle through messages every 2 seconds

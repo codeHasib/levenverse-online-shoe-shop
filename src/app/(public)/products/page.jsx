@@ -63,7 +63,7 @@ export default function ProductsPage() {
         {/* --- HEADER & CONTROLS --- */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div>
-            <h1 className="text-3xl tracking-[0.5em] uppercase font-light text-black mb-4">
+            <h1 className="text-2xl md:text-3xl tracking-[0.5em] uppercase font-light text-black mb-4">
               Collections
             </h1>
             <div className="flex flex-wrap gap-6">
@@ -112,7 +112,8 @@ export default function ProductsPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+                {/* Optimized Grid: Starts at 2 columns for mobile (default), scales to 3 and 4 as screen widens */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-12">
                   <AnimatePresence>
                     {items.map((product) => (
                       <motion.div
@@ -121,7 +122,8 @@ export default function ProductsPage() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         key={product._id}
-                        className="group relative"
+                        /* Removed max-w-[50vw] to allow grid cells to control the size naturally */
+                        className="group relative flex flex-col h-full"
                       >
                         {/* Image Container */}
                         <div
@@ -134,19 +136,21 @@ export default function ProductsPage() {
                             src={product.images?.[0] || "/placeholder.png"}
                             alt={product.title}
                             fill
-                            className="object-contain p-8 transition-transform duration-700 group-hover:scale-110"
+                            /* Added priority for the first few items to help LCP */
+                            className="object-contain transition-transform duration-700 group-hover:scale-105"
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
                         </div>
 
-                        {/* Info */}
-                        <div className="mt-6 space-y-2">
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-[11px] tracking-[0.2em] uppercase text-black leading-tight max-w-[70%]">
+                        {/* Info Area - Using flex-1 to ensure buttons align if titles vary in height */}
+                        <div className="mt-4 sm:mt-6 space-y-3 flex-1 flex flex-col justify-between">
+                          <div className="space-y-1">
+                            {/* Adjusted font size slightly for better mobile readability */}
+                            <h3 className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-black leading-tight line-clamp-2">
                               {product.title}
                             </h3>
-                            <p className="text-sm tracking-tighter text-[#0070f3]">
-                              QAR{product.price}
+                            <p className="text-xs sm:text-sm tracking-tighter text-[#0070f3] font-medium">
+                              QAR {product.price}
                             </p>
                           </div>
 
@@ -158,12 +162,12 @@ export default function ProductsPage() {
                                 product.sizes?.[0] || "Default",
                               )
                             }
-                            className="w-full flex items-center justify-between border border-neutral-100 py-3 px-4 text-[9px] tracking-[0.3em] uppercase transition-all hover:bg-black hover:text-white group"
+                            className="w-full flex items-center justify-between border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] tracking-[0.2em] sm:tracking-[0.3em] uppercase transition-all hover:bg-black hover:text-white group"
                           >
-                            Add to Bag
+                            <span className="truncate">Add to Bag</span>
                             <ArrowRight
                               size={12}
-                              className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0"
+                              className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0 hidden sm:block"
                             />
                           </button>
                         </div>

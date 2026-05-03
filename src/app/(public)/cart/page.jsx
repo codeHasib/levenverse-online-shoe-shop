@@ -8,43 +8,82 @@ import {
   Trash2,
   Plus,
   Minus,
-  CreditCard,
   MapPin,
-  Truck,
   ArrowRight,
+  Navigation,
 } from "lucide-react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation"; // Changed from redirect for better client-side handling
+import Link from "next/link";
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const { cart, getTotalPrice, clearCart, updateQuantity, removeFromCart } =
     useCartStore();
 
   const [hydrated, setHydrated] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
   const [deliveryZone, setDeliveryZone] = useState("inside");
+  const [isLocating, setIsLocating] = useState(false);
+
+  // --- FORM STATE ---
+  const [form, setForm] = useState({
+    name: "",
+    email: "", // New Field
+    phone: "",
+    address: "",
+    coordinates: null, // New Pinned Location Field
+  });
 
   useEffect(() => {
     setHydrated(true);
   }, []);
 
-  // --- REACTIVE CALCULATIONS ---
   const subtotal = useMemo(() => getTotalPrice(), [cart]);
   const deliveryCharge = deliveryZone === "inside" ? 60 : 120;
   const finalTotal = subtotal + deliveryCharge;
 
-  const [form, setForm] = useState({ name: "", phone: "", address: "" });
+  // --- LOCATION PINNING LOGIC ---
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) return alert("Geolocation not supported");
 
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+        // This updates the "coordinates" for the payload AND injects the link into the address text
+        setForm((prev) => ({
+          ...prev,
+          coordinates: { lat: latitude, lng: longitude },
+          address: prev.address
+            ? `${prev.address}\n\nPinned Location: ${googleMapsUrl}`
+            : `Pinned Location: ${googleMapsUrl}`,
+        }));
+
+        setIsLocating(false);
+      },
+      (error) => {
+        alert("Permission denied. Please enable location services.");
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true },
+    );
+  };
   const handleOrder = async () => {
     if (!cart.length) return alert("Your bag is empty");
-    if (!form.name || !form.phone || !form.address)
-      return alert("Delivery details required");
+    // Updated validation to include email
+    if (!form.name || !form.email || !form.phone || !form.address)
+      return alert("Please complete all delivery details");
 
     setIsOrdering(true);
 
     const orderPayload = {
       customerName: form.name,
+      email: form.email, // Added to payload
       phone: form.phone,
       location: form.address,
+      // pinnedCoordinates: form.coordinates, // Added to payload
       deliveryZone,
       deliveryCharge,
       items: cart.map((item) => ({
@@ -67,8 +106,8 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (data.success) {
         clearCart();
-        alert("Order received. Thank you for shopping with LevenVerse.");
-        redirect("/products");
+        alert("Order received. A confirmation has been sent to your email.");
+        window.location.href = "/products";
       } else {
         alert(data.error || "Order failed");
       }
@@ -162,7 +201,7 @@ export default function CheckoutPage() {
                         </button>
                       </div>
                       <p className="text-sm tracking-tighter text-black font-normal">
-                        QAR{item.price * item.quantity}
+                        QAR {item.price * item.quantity}
                       </p>
                     </div>
                   </div>
@@ -175,70 +214,125 @@ export default function CheckoutPage() {
         {/* --- RIGHT: CHECKOUT & DELIVERY --- */}
         <div className="lg:col-span-5">
           <div className="sticky top-32 space-y-8">
-            {/* Delivery Zone Toggle */}
-            <div className="bg-[#f9f9f9] p-2 flex gap-1 border border-neutral-100">
-              <button
-                onClick={() => setDeliveryZone("inside")}
-                className={`flex-1 py-4 text-[10px] tracking-[0.4em] uppercase transition-all ${deliveryZone === "inside" ? "bg-white shadow-sm text-[#0070f3]" : "text-neutral-400"}`}
-              >
-                Inside Doha
-              </button>
-              <button
-                onClick={() => setDeliveryZone("outside")}
-                className={`flex-1 py-4 text-[10px] tracking-[0.4em] uppercase transition-all ${deliveryZone === "outside" ? "bg-white shadow-sm text-[#0070f3]" : "text-neutral-400"}`}
-              >
-                Outside Doha
-              </button>
-            </div>
-
             {/* Address Form */}
-            <div className="space-y-4">
-              <input
-                placeholder="Recipient Name"
-                className="w-full bg-white border-b border-neutral-200 py-4 text-[11px] tracking-widest uppercase focus:border-[#0070f3] outline-none transition-all"
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-              <input
-                placeholder="Phone Contact"
-                className="w-full bg-white border-b border-neutral-200 py-4 text-[11px] tracking-widest uppercase focus:border-[#0070f3] outline-none transition-all"
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-              <textarea
-                placeholder="Detailed Delivery Address"
-                rows={2}
-                className="w-full bg-white border-b border-neutral-200 py-4 text-[11px] tracking-widest uppercase focus:border-[#0070f3] outline-none transition-all resize-none"
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-              />
-            </div>
+            {cart.length > 0 ? (
+              <>
+                {/* Delivery Zone Toggle */}
+                <div className="bg-[#f9f9f9] p-2 flex gap-1 border border-neutral-100">
+                  {["inside", "outside"].map((zone) => (
+                    <button
+                      key={zone}
+                      onClick={() => setDeliveryZone(zone)}
+                      className={`flex-1 py-4 text-[10px] tracking-[0.4em] uppercase transition-all ${deliveryZone === zone ? "bg-white shadow-sm text-[#0070f3]" : "text-neutral-400"}`}
+                    >
+                      {zone === "inside" ? "Inside Doha" : "Outside Doha"}
+                    </button>
+                  ))}
+                </div>
+                <div className="space-y-4">
+                  <input
+                    placeholder="Full Name"
+                    className="w-full bg-white border-b border-neutral-200 py-4 text-[11px] tracking-widest uppercase focus:border-[#0070f3] outline-none transition-all"
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    className="w-full bg-white border-b border-neutral-200 py-4 text-[11px] tracking-widest uppercase focus:border-[#0070f3] outline-none transition-all"
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                  />
+                  <input
+                    placeholder="Contact Number"
+                    className="w-full bg-white border-b border-neutral-200 py-4 text-[11px] tracking-widest uppercase focus:border-[#0070f3] outline-none transition-all"
+                    onChange={(e) =>
+                      setForm({ ...form, phone: e.target.value })
+                    }
+                  />
 
-            {/* Price Summary */}
-            <div className="bg-black text-white p-10 space-y-4">
-              <div className="flex justify-between text-[10px] tracking-[0.4em] uppercase text-neutral-500">
-                <span>Subtotal</span>
-                <span>QAR{subtotal}</span>
-              </div>
-              <div className="flex justify-between text-[10px] tracking-[0.4em] uppercase text-neutral-500">
-                <span>Delivery ({deliveryZone})</span>
-                <span>QAR{deliveryCharge}</span>
-              </div>
-              <div className="pt-6 border-t border-neutral-800 flex justify-between items-end">
-                <span className="text-[10px] tracking-[0.4em] uppercase">
-                  Total Amount
-                </span>
-                <span className="text-2xl tracking-tighter text-[#0070f3]">
-                  QAR{finalTotal}
-                </span>
-              </div>
+                  {/* PINNED LOCATION SYSTEM */}
+                  <div className="relative">
+                    <textarea
+                      placeholder="Delivery Address Details"
+                      rows={4} // Increased rows to accommodate the link
+                      value={form.address} // 👈 This is the key change
+                      className="w-full bg-white border-b border-neutral-200 py-4 pr-12 text-[11px] tracking-widest uppercase focus:border-[#0070f3] outline-none transition-all resize-none"
+                      onChange={(e) =>
+                        setForm({ ...form, address: e.target.value })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={handleGetLocation}
+                      disabled={isLocating}
+                      className={`absolute right-0 top-4 p-2 transition-colors ${
+                        form.coordinates
+                          ? "text-[#0070f3]"
+                          : "text-neutral-300 hover:text-black"
+                      }`}
+                    >
+                      {isLocating ? (
+                        <div className="w-4 h-4 border-2 border-[#0070f3] border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Navigation size={18} strokeWidth={1.5} />
+                      )}
+                    </button>
+                  </div>
 
-              <button
-                onClick={handleOrder}
-                disabled={isOrdering || cart.length === 0}
-                className="w-full bg-[#0070f3] text-white text-[11px] tracking-[0.5em] uppercase py-6 mt-8 flex items-center justify-center gap-4 hover:bg-blue-600 transition-all disabled:bg-neutral-800"
-              >
-                {isOrdering ? "Processing..." : "Complete Purchase"}
-                <ArrowRight size={16} />
-              </button>
-            </div>
+                  {form.coordinates && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-center gap-2 text-[#0070f3] bg-blue-50/50 p-3"
+                    >
+                      <MapPin size={12} />
+                      <span className="text-[9px] tracking-widest uppercase font-bold">
+                        Exact Location Pinned Successfully
+                      </span>
+                    </motion.div>
+                  )}
+                </div>
+                {/* Price Summary */}
+                <div className="bg-black text-white p-10 space-y-4">
+                  <div className="flex justify-between text-[10px] tracking-[0.4em] uppercase text-neutral-500">
+                    <span>Subtotal</span>
+                    <span>QAR {subtotal}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px] tracking-[0.4em] uppercase text-neutral-500">
+                    <span>Delivery ({deliveryZone})</span>
+                    <span>QAR {deliveryCharge}</span>
+                  </div>
+                  <div className="pt-6 border-t border-neutral-800 flex justify-between items-end">
+                    <span className="text-[10px] tracking-[0.4em] uppercase">
+                      Total Amount
+                    </span>
+                    <span className="text-2xl tracking-tighter text-[#0070f3]">
+                      QAR {finalTotal}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleOrder}
+                    disabled={isOrdering || cart.length === 0}
+                    className="w-full bg-[#0070f3] text-white text-[11px] tracking-[0.5em] uppercase py-6 mt-8 flex items-center justify-center gap-4 hover:bg-blue-600 transition-all disabled:bg-neutral-800"
+                  >
+                    {isOrdering ? "Placing Order..." : "Finalize Order"}
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center">
+                <h2 className="text-3xl mb-4">Nothing to show</h2>
+                <Link
+                  className="bg-[#0070f3] text-white p-4 rounded-full font-extrabold inline-block"
+                  href={"/products"}
+                >
+                  Shop Now
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
