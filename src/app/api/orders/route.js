@@ -4,6 +4,8 @@ import { Order } from "@/models/Order";
 import { NextResponse } from "next/server";
 import { sendOrderEmail } from "@/lib/sendEmail";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req) {
   try {
     await connectDB();
@@ -24,7 +26,13 @@ export async function POST(req) {
       phone,
       email,
       location,
-      items,
+      items: items.map((item) => ({
+        productId: item._id || item.productId,
+        title: item.title,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.size,
+      })),
       totalPrice,
     });
 
@@ -35,6 +43,8 @@ export async function POST(req) {
       order,
     });
   } catch (error) {
+    console.error("🔥 ORDER ERROR FULL:", error);
+
     return NextResponse.json(
       { success: false, error: "Order failed" },
       { status: 500 },
@@ -43,22 +53,42 @@ export async function POST(req) {
 }
 
 // GET ALL ORDERS (ADMIN)
+// export async function GET() {
+//   try {
+//     await connectDB();
+
+//     const orders = await Order.find()
+//       .populate("items.productId")
+//       .sort({ createdAt: -1 });
+
+//     return NextResponse.json({
+//       success: true,
+//       orders,
+//     });
+//   } catch (error) {
+//     return NextResponse.json(
+//       { success: false, error: "Failed to fetch orders" },
+//       { status: 500 },
+//     );
+//   }
+// }
+
 export async function GET() {
   try {
     await connectDB();
 
-    const orders = await Order.find()
-      .populate("items.productId")
-      .sort({ createdAt: -1 });
+    const orders = await Order.find().sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,
       orders,
     });
   } catch (error) {
+    console.error("ORDER GET ERROR:", error);
+
     return NextResponse.json(
-      { success: false, error: "Failed to fetch orders" },
-      { status: 500 },
+      { success: false, error: error.message },
+      { status: 500 }
     );
   }
 }

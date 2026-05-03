@@ -21,7 +21,7 @@ export default function Reviews() {
   const fetchReviews = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/reviews/all");
+      const res = await fetch("/api/reviews?all=true", { cache: "no-store" });
       const data = await res.json();
       setReviews(data.reviews || []);
     } catch (err) {
@@ -30,6 +30,10 @@ export default function Reviews() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   useEffect(() => {
     fetchReviews();
