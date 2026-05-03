@@ -11,11 +11,24 @@ export default function ProductsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      const res = await fetch("/api/products", { cache: "no-store" });
-      const data = await res.json();
-      setProducts(data.products || []);
-    };
+const fetchProducts = async () => {
+  try {
+    const res = await fetch("/api/products", {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("API ERROR:", text);
+      return;
+    }
+
+    const data = await res.json();
+    setProducts(data.products || []);
+  } catch (err) {
+    console.error("FETCH ERROR:", err);
+  }
+};
 
     fetchProducts();
   }, []);
