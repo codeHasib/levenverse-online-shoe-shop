@@ -5,10 +5,12 @@ import Link from "next/link";
 import { ArrowRight, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import ProductCard from "./ProductCard";
+import { useCartStore } from "@/store/cartStore";
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const addToCart = useCartStore((state) => state.addToCart);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -76,6 +78,7 @@ export default function FeaturedProducts() {
                   key={ind}
                   product={product}
                   featured={true}
+                  addToCart={addToCart}
                 ></ProductCard>
               ))}
         </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { useCartStore } from "@/store/cartStore";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ShoppingBag, ArrowRight } from "lucide-react";
 import LogoImg from "../../../../public/logo - remove-bg.png";
@@ -153,7 +153,7 @@ export default function ProductsPage() {
                           exit={{ opacity: 0 }}
                           key={product._id}
                           /* Removed max-w-[50vw] to allow grid cells to control the size naturally */
-                          className="group relative flex flex-col h-full"
+                          className="group relative flex flex-col h-full border border-gray-300 p-2"
                         >
                           {/* Image Container */}
                           <div
@@ -184,22 +184,34 @@ export default function ProductsPage() {
                               </p>
                             </div>
 
-                            <button
-                              onClick={() =>
-                                addToCart(
-                                  product,
-                                  1,
-                                  product.sizes?.[0] || "Default",
-                                )
-                              }
-                              className="w-full flex items-center justify-between border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] tracking-[0.2em] sm:tracking-[0.3em] uppercase transition-all hover:bg-black hover:text-white group"
-                            >
-                              <span className="truncate">Add to Bag</span>
-                              <ArrowRight
-                                size={12}
-                                className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0 hidden sm:block"
-                              />
-                            </button>
+                            <div className="flex gap-2 items-center justify-center">
+                              <button
+                                onClick={() => {
+                                  addToCart(
+                                    product,
+                                    1,
+                                    product.sizes?.[0] || "Default",
+                                  );
+                                  redirect("/cart");
+                                }}
+                                className="w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-600 text-white"
+                              >
+                                <span className="truncate">Order Now</span>
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  addToCart(
+                                    product,
+                                    1,
+                                    product.sizes?.[0] || "Default",
+                                  )
+                                }
+                                className="w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-300"
+                              >
+                                <span className="truncate">Add to Bag</span>
+                              </button>
+                            </div>
                           </div>
                         </motion.div>
                       ))}

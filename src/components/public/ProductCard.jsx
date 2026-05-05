@@ -1,8 +1,11 @@
+"use client";
+
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function ProductCard({ product, featured }) {
+export default function ProductCard({ product, featured, addToCart }) {
   return (
     <>
       <div
@@ -49,24 +52,16 @@ export default function ProductCard({ product, featured }) {
               QAR {product.price}
             </p>
           </div>
-
+          <p className="uppercase text-blue-400 font-bold">
+            Click to see the details
+          </p>
           {/* 3. INTERACTIVE SECTION - Blue Accents */}
-          <div className="flex items-center gap-2 pt-2">
-            <button className="flex-grow bg-black text-white text-[9px] tracking-[0.3em] uppercase py-4 transition-all hover:bg-[#0070f3]">
-              Quick Add
-            </button>
-            <button className="bg-white border border-neutral-200 text-black p-3.5 transition-all hover:border-[#0070f3] hover:text-[#0070f3]">
-              <ShoppingCart size={16} strokeWidth={1.5} />
-            </button>
-          </div>
         </div>
 
         {/* Hidden Detail Link */}
         <Link
           href={`/products/${product._id}`}
           className="absolute inset-0 z-[5] pointer-events-auto"
-          // Note: Link is absolute but buttons above have higher stacking priority
-          // depending on your layout, or use onClick for the link.
         />
       </div>
     </>
