@@ -153,23 +153,23 @@ export default function ProductsPage() {
                           exit={{ opacity: 0 }}
                           key={product._id}
                           /* Removed max-w-[50vw] to allow grid cells to control the size naturally */
-                          className="group relative flex flex-col h-full border border-gray-300 p-2"
+                          className="group relative flex flex-col h-full border border-gray-300 p-2 rounded-2xl"
                         >
                           {/* Image Container */}
                           <div
                             onClick={() =>
                               router.push(`/products/${product._id}`)
                             }
-                            className="relative aspect-[3/4] bg-[#f8f8f8] overflow-hidden cursor-pointer"
+                            className="relative aspect-[3/4] bg-[#f8f8f8] overflow-hidden cursor-pointer rounded-2xl"
                           >
                             <Image
                               src={product.images?.[0] || "/placeholder.png"}
                               alt={product.title}
                               fill
                               /* Added priority for the first few items to help LCP */
-                              className="object-contain transition-transform duration-700 group-hover:scale-105"
+                              className="object-cover rounded-2xl transition-transform duration-700 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
+                            <div className="absolute rounded-2xl inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
                           </div>
 
                           {/* Info Area - Using flex-1 to ensure buttons align if titles vary in height */}
@@ -184,7 +184,7 @@ export default function ProductsPage() {
                               </p>
                             </div>
 
-                            <div className="flex gap-2 items-center justify-center">
+                            <div className="flex gap-2 items-center justify-center md:flex-row flex-col">
                               <button
                                 onClick={() => {
                                   addToCart(
@@ -194,7 +194,7 @@ export default function ProductsPage() {
                                   );
                                   redirect("/cart");
                                 }}
-                                className="w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-600 text-white"
+                                className="w-full md:w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-600 text-white"
                               >
                                 <span className="truncate">Order Now</span>
                               </button>
@@ -207,7 +207,7 @@ export default function ProductsPage() {
                                     product.sizes?.[0] || "Default",
                                   )
                                 }
-                                className="w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-300"
+                                className="w-full md:w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-300"
                               >
                                 <span className="truncate">Add to Bag</span>
                               </button>

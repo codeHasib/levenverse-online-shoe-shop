@@ -2,7 +2,17 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, MessageSquare, User, Clock, CheckCircle2, Send, Plus, X } from "lucide-react";
+import {
+  Star,
+  MessageSquare,
+  User,
+  Clock,
+  CheckCircle2,
+  Send,
+  Plus,
+  X,
+} from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function ProductReviews({ productId }) {
   const [reviews, setReviews] = useState([]);
@@ -17,7 +27,9 @@ export default function ProductReviews({ productId }) {
 
   const fetchReviews = async () => {
     try {
-      const res = await fetch(`/api/reviews?productId=${productId}`, { cache: "no-store" });
+      const res = await fetch(`/api/reviews?productId=${productId}`, {
+        cache: "no-store",
+      });
       const data = await res.json();
       setReviews(data.reviews || []);
     } catch (err) {
@@ -35,7 +47,7 @@ export default function ProductReviews({ productId }) {
 
   const handleSubmit = async () => {
     if (!form.name || !form.rating || !form.comment) {
-      alert("Please complete all fields.");
+      toast.error("Please complete all fields.");
       return;
     }
 
@@ -53,7 +65,7 @@ export default function ProductReviews({ productId }) {
 
       const data = await res.json();
       if (data.success) {
-        alert("Your feedback has been received and is awaiting moderation.");
+        toast.success("Thanks for your feedback.");
         setForm({ name: "", rating: 5, comment: "" });
         setShowForm(false);
       }
@@ -74,10 +86,23 @@ export default function ProductReviews({ productId }) {
           </h2>
           <div className="flex items-center gap-3">
             <span className="text-2xl tracking-tighter font-light">
-              {reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "0.0"}
+              {reviews.length > 0
+                ? (
+                    reviews.reduce((acc, r) => acc + r.rating, 0) /
+                    reviews.length
+                  ).toFixed(1)
+                : "0.0"}
             </span>
             <div className="flex text-[#0070f3]">
-              {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" strokeWidth={0} className="opacity-80" />)}
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  size={14}
+                  fill="currentColor"
+                  strokeWidth={0}
+                  className="opacity-80"
+                />
+              ))}
             </div>
             <span className="text-[10px] text-neutral-400 tracking-widest uppercase">
               ({reviews.length} Verified Entries)
@@ -85,19 +110,26 @@ export default function ProductReviews({ productId }) {
           </div>
         </div>
 
-        <button 
+        <button
           onClick={() => setShowForm(!showForm)}
           className="group flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase border border-neutral-200 px-8 py-4 hover:bg-black hover:text-white transition-all duration-500"
         >
-          {showForm ? "Cancel" : "Share Experience"} 
-          {showForm ? <X size={14} /> : <Plus size={14} className="group-hover:rotate-90 transition-transform" />}
+          {showForm ? "Cancel" : "Share Experience"}
+          {showForm ? (
+            <X size={14} />
+          ) : (
+            <Plus
+              size={14}
+              className="group-hover:rotate-90 transition-transform"
+            />
+          )}
         </button>
       </div>
 
       {/* --- ANIMATED SUBMISSION FORM --- */}
       <AnimatePresence>
         {showForm && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -106,7 +138,9 @@ export default function ProductReviews({ productId }) {
             <div className="bg-[#fcfcfc] p-8 md:p-12 mb-12 space-y-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-[9px] tracking-widest uppercase text-neutral-400">Full Name</label>
+                  <label className="text-[9px] tracking-widest uppercase text-neutral-400">
+                    Full Name
+                  </label>
                   <input
                     name="name"
                     value={form.name}
@@ -116,7 +150,9 @@ export default function ProductReviews({ productId }) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] tracking-widest uppercase text-neutral-400">Rating Score</label>
+                  <label className="text-[9px] tracking-widest uppercase text-neutral-400">
+                    Rating Score
+                  </label>
                   <select
                     name="rating"
                     value={form.rating}
@@ -124,14 +160,18 @@ export default function ProductReviews({ productId }) {
                     className="w-full bg-transparent border-b border-neutral-200 py-2 text-[11px] tracking-widest uppercase focus:outline-none focus:border-[#0070f3] cursor-pointer appearance-none"
                   >
                     {[5, 4, 3, 2, 1].map((n) => (
-                      <option key={n} value={n} className="text-black">{n} Star Selection</option>
+                      <option key={n} value={n} className="text-black">
+                        {n} Star Selection
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[9px] tracking-widest uppercase text-neutral-400">Your Feedback</label>
+                <label className="text-[9px] tracking-widest uppercase text-neutral-400">
+                  Your Feedback
+                </label>
                 <textarea
                   name="comment"
                   value={form.comment}
@@ -147,7 +187,8 @@ export default function ProductReviews({ productId }) {
                 disabled={loading}
                 className="bg-[#0070f3] text-white text-[10px] tracking-[0.5em] uppercase px-12 py-5 flex items-center justify-center gap-4 hover:bg-blue-600 transition-all disabled:bg-neutral-200"
               >
-                {loading ? "Processing..." : "Submit for Approval"} <Send size={12} />
+                {loading ? "Processing..." : "Submit for Approval"}{" "}
+                <Send size={12} />
               </button>
             </div>
           </motion.div>
@@ -172,15 +213,23 @@ export default function ProductReviews({ productId }) {
                       <User size={18} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h4 className="text-[11px] tracking-[0.2em] uppercase font-bold text-black">{r.name}</h4>
+                      <h4 className="text-[11px] tracking-[0.2em] uppercase font-bold text-black">
+                        {r.name}
+                      </h4>
                       <p className="text-[9px] text-neutral-400 tracking-tighter uppercase flex items-center gap-1 mt-1">
-                        <CheckCircle2 size={10} className="text-emerald-500" /> Verified Experience
+                        <CheckCircle2 size={10} className="text-emerald-500" />{" "}
+                        Verified Experience
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-0.5 text-[#0070f3]">
                     {[...Array(r.rating)].map((_, i) => (
-                      <Star key={i} size={10} fill="currentColor" strokeWidth={0} />
+                      <Star
+                        key={i}
+                        size={10}
+                        fill="currentColor"
+                        strokeWidth={0}
+                      />
                     ))}
                   </div>
                 </div>
@@ -190,17 +239,22 @@ export default function ProductReviews({ productId }) {
                 </p>
 
                 <div className="mt-6 pl-16 flex items-center gap-4 text-neutral-300">
-                   <span className="text-[9px] tracking-widest uppercase flex items-center gap-1">
-                      <Clock size={10} /> Recently Published
-                   </span>
+                  <span className="text-[9px] tracking-widest uppercase flex items-center gap-1">
+                    <Clock size={10} /> Recently Published
+                  </span>
                 </div>
               </motion.div>
             ))
           ) : (
             <div className="py-24 text-center border-t border-dashed border-neutral-100">
-              <MessageSquare size={32} className="mx-auto text-neutral-100 mb-6" />
+              <MessageSquare
+                size={32}
+                className="mx-auto text-neutral-100 mb-6"
+              />
               <p className="text-neutral-400 font-bold uppercase text-[9px] tracking-[0.4em]">
-                {loading ? "Refreshing Gallery..." : "Be the first to leave a mark"}
+                {loading
+                  ? "Refreshing Gallery..."
+                  : "Be the first to leave a mark"}
               </p>
             </div>
           )}

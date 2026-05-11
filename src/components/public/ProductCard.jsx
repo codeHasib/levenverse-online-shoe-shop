@@ -10,16 +10,16 @@ export default function ProductCard({ product, featured, addToCart }) {
     <>
       <div
         key={product._id}
-        className="group relative bg-white border border-neutral-100 flex flex-col p-4 transition-all duration-500 hover:border-[#0070f3]"
+        className="group relative bg-white border border-neutral-100 flex flex-col p-4 transition-all duration-500 hover:border-[#0070f3] rounded-2xl"
       >
         {/* 1. PRODUCT IMAGE - Sharp & Framed */}
-        <div className="relative aspect-square overflow-hidden bg-[#f8f8f8] flex items-center justify-center">
+        <div className="relative aspect-square overflow-hidden bg-[#f8f8f8] flex items-center justify-center rounded-2xl">
           {product.images && product.images[0] ? (
             <Image
               src={product.images[0]}
               alt={product.title}
               fill
-              className="object-contain p-6 transition-transform duration-700 group-hover:scale-110"
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
             />
           ) : (
             <div className="text-neutral-300 uppercase tracking-widest text-[9px]">
