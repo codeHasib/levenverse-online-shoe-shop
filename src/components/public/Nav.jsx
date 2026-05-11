@@ -5,11 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ShoppingBag, User, Search, ArrowRight } from "lucide-react";
+import { useCartStore } from "@/store/cartStore";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { cart } = useCartStore();
+
+  // Example state for notification (e.g., items in cart or active orders)
+  const cartCount = cart.length;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -76,7 +81,7 @@ export default function Navbar() {
             >
               <ShoppingBag size={18} strokeWidth={1.5} />
               <span className="absolute -top-1 -right-1 bg-white text-[#0070f3] text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-normal">
-                0
+                {cartCount}
               </span>
             </Link>
           </div>

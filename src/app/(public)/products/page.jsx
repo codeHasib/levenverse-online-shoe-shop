@@ -60,8 +60,9 @@ export default function ProductsPage() {
 
   return (
     <>
-      <div className="h-[600px] relative overflow-hidden group">
-        {/* 1. The Video */}
+      {/* <div className="h-[600px] relative overflow-hidden group">
+
+        
         <video
           src="/videos/collection.mp4"
           autoPlay
@@ -71,23 +72,21 @@ export default function ProductsPage() {
           className="absolute inset-0 w-full h-full object-cover"
         ></video>
 
-        {/* 2. The Subtle Dark Overlay */}
-        {/* Use bg-black/40 to adjust darkness (40% opacity) */}
         <div className="absolute inset-0 bg-black/40 pointer-events-none"></div>
 
-        {/* 3. Centered Content */}
         <div className="absolute inset-0 flex flex-col justify-center items-center p-5">
           <Image
             src={LogoImg}
             width={250}
             alt="Logo"
-            className="drop-shadow-2xl" // Optional: adds pop to the logo against the video
+            className="drop-shadow-2xl" 
           />
           <h2 className="text-white text-3xl text-center">
             THE PREMIUM COLLECTION OF SHOES
           </h2>
         </div>
-      </div>
+      </div> */}
+
       <div className="min-h-screen bg-white pt-24 pb-20 px-6">
         <div className="max-w-7xl mx-auto">
           {/* --- HEADER & CONTROLS --- */}
@@ -194,7 +193,7 @@ export default function ProductsPage() {
                                   );
                                   redirect("/cart");
                                 }}
-                                className="w-full md:w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-600 text-white"
+                                className="w-full md:w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-600 text-white rounded-lg"
                               >
                                 <span className="truncate">Order Now</span>
                               </button>
@@ -207,7 +206,7 @@ export default function ProductsPage() {
                                     product.sizes?.[0] || "Default",
                                   )
                                 }
-                                className="w-full md:w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-300"
+                                className="w-full md:w-1/2 border border-neutral-100 py-3 px-3 sm:px-4 text-[8px] sm:text-[9px] uppercase text-center font-bold bg-blue-300 rounded-lg"
                               >
                                 <span className="truncate">Add to Bag</span>
                               </button>
