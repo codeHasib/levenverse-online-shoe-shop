@@ -5,11 +5,11 @@ export const useCartStore = create(
   persist(
     (set, get) => ({
       cart: [],
-
+      searchQuery: "",
+      setSearchQuery: (query) => set({ searchQuery: query }),
       addToCart: (product, quantity = 1, size) => {
         const existing = get().cart.find(
-          (item) =>
-            item._id === product._id && item.size === size
+          (item) => item._id === product._id && item.size === size,
         );
 
         if (existing) {
@@ -17,7 +17,7 @@ export const useCartStore = create(
             cart: get().cart.map((item) =>
               item._id === product._id && item.size === size
                 ? { ...item, quantity: item.quantity + quantity }
-                : item
+                : item,
             ),
           });
         } else {
@@ -37,8 +37,7 @@ export const useCartStore = create(
       removeFromCart: (id, size) => {
         set({
           cart: get().cart.filter(
-            (item) =>
-              !(item._id === id && item.size === size)
+            (item) => !(item._id === id && item.size === size),
           ),
         });
       },
@@ -48,7 +47,7 @@ export const useCartStore = create(
           cart: get().cart.map((item) =>
             item._id === id && item.size === size
               ? { ...item, quantity }
-              : item
+              : item,
           ),
         });
       },
@@ -57,14 +56,13 @@ export const useCartStore = create(
 
       getTotalPrice: () => {
         return get().cart.reduce(
-          (total, item) =>
-            total + item.price * item.quantity,
-          0
+          (total, item) => total + item.price * item.quantity,
+          0,
         );
       },
     }),
     {
       name: "cart-storage",
-    }
-  )
+    },
+  ),
 );

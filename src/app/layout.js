@@ -1,6 +1,5 @@
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import "./globals.css";
-import SplashWrapper from "@/components/SplashWrapper";
 import { ToastContainer } from "react-toastify";
 
 const montserrat = Montserrat({
@@ -18,8 +17,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${montserrat.variable} h-full antialiased`}>
       <body className={montserrat.className}>
-        <SplashWrapper>{children}</SplashWrapper>
         <ToastContainer></ToastContainer>
+        {children}
       </body>
     </html>
   );

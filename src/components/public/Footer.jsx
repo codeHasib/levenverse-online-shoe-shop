@@ -152,30 +152,6 @@ export default function Footer() {
               className="group-hover:-translate-y-1 transition-transform"
             />
           </button>
-
-          <p className="uppercase font-light text-[10px]">
-            DEVELOPED BY{" "}
-            <a
-              className="font-bold"
-              href="https://github.com/codeHasib"
-              target="_blank"
-            >
-              MOHAMMAD HASIB
-            </a>
-          </p>
-
-          {/* Payment Icons Placeholder */}
-          <div className="flex gap-4 opacity-30 grayscale hover:opacity-100 transition-opacity">
-            <div className="text-[9px] tracking-[0.2em] font-bold border border-black px-2 py-1 italic">
-              VISA
-            </div>
-            <div className="text-[9px] tracking-[0.2em] font-bold border border-black px-2 py-1 italic">
-              MC
-            </div>
-            <div className="text-[9px] tracking-[0.2em] font-bold border border-black px-2 py-1 italic">
-              AMEX
-            </div>
-          </div>
         </div>
       </div>
     </footer>

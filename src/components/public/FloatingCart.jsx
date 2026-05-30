@@ -100,7 +100,7 @@ export default function FloatingCart() {
       {/* 2. THE MAIN FLOATING BUTTON */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="relative group flex items-center justify-center w-16 h-16 bg-[#0070f3] text-white shadow-2xl transition-transform active:scale-90 hover:scale-105"
+        className="relative group flex items-center justify-center w-16 h-16 text-black transition-transform active:scale-90 hover:scale-105"
       >
         {/* Animated Pulse Ring (Only shows if there are active orders/items) */}
         {(cartCount > 0 || activeOrders > 0) && (
@@ -128,7 +128,7 @@ export default function FloatingCart() {
             >
               <ShoppingBag size={24} strokeWidth={1.5} />
               {/* Count Badge */}
-              <span className="absolute -top-2 -right-2 bg-black text-white text-[9px] w-5 h-5 flex items-center justify-center border border-white/20">
+              <span className="absolute -top-2 -right-2 bg-black text-white text-[9px] w-5 h-5 flex items-center justify-center border rounded-full border-white/20">
                 {cartCount}
               </span>
             </motion.div>

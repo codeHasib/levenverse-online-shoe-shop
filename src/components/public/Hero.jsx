@@ -61,18 +61,12 @@ export default function Hero() {
             luxury. The future of footwear is here.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-5">
+          <div className="flex justify-center items-center gap-4 mb-5">
             <Link
               href="/products"
-              className="bg-[#0070f3] text-white text-[11px] tracking-[0.3em] uppercase px-10 py-5 rounded-full flex items-center justify-center gap-3 hover:bg-blue-600 transition-all"
+              className="bg-[#0070f3] text-white text-[11px] tracking-[0.3em] uppercase px-10 py-5 rounded-full flex items-center justify-center gap-1 hover:bg-blue-600 transition-all"
             >
-              Shop Collection <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/brands"
-              className="border border-white/20 text-white text-[11px] tracking-[0.3em] uppercase px-10 py-5 rounded-full hover:bg-white hover:text-black transition-all text-center"
-            >
-              View Brands
+              Shop <ArrowRight size={16} />
             </Link>
           </div>
         </motion.div>
