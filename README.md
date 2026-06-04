@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="readme.png" alt="LevenVerse" width="100%">
+</p>
+
 # 👟 Levenverse — Premium Footwear E-Commerce Platform
 
 🔗 **Live:** https://levenverse.com
