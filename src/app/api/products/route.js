@@ -53,48 +53,6 @@ export async function POST(req) {
   }
 }
 
-// GET PRODUCTS
-// export async function GET() {
-//   try {
-//     await connectDB();
-
-//     const products = await Product.find()
-//       .populate("categoryId")
-//       .sort({ createdAt: -1 });
-
-//     return NextResponse.json({
-//       success: true,
-//       products,
-//     });
-//   } catch (error) {
-//     return NextResponse.json(
-//       { success: false, error: "Failed to fetch products" },
-//       { status: 500 },
-//     );
-//   }
-// }
-
-// temporary get products
-// export async function GET() {
-//   try {
-//     await connectDB();
-
-//     const products = await Product.find().sort({ createdAt: -1 });
-
-//     return NextResponse.json({
-//       success: true,
-//       products,
-//     });
-//   } catch (error) {
-//     console.error("🔥 PRODUCT GET ERROR:", error);
-
-//     return NextResponse.json(
-//       { success: false, error: error.message }, // 👈 IMPORTANT
-//       { status: 500 },
-//     );
-//   }
-// }
-
 export async function GET() {
   try {
     await connectDB();
