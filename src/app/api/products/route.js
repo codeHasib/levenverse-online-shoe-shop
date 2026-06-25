@@ -1,6 +1,5 @@
 import { connectDB } from "@/lib/db";
 import { Product } from "@/models/Product";
-import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 import "@/models/Category";
 import { NextResponse } from "next/server";
 
@@ -10,7 +9,6 @@ export const dynamic = "force-dynamic";
 export async function POST(req) {
   try {
     await connectDB();
-
     const body = await req.json();
 
     const {
@@ -21,9 +19,9 @@ export async function POST(req) {
       images = [],
       video,
       sizes = [],
+      inStock = true, // 🔥 EXTRACT INSTOCK
     } = body;
 
-    // 3. Create product
     const product = await Product.create({
       title,
       description,
@@ -32,6 +30,7 @@ export async function POST(req) {
       images,
       video,
       sizes,
+      inStock, // 🔥 SAVE TO DB
     });
 
     if (!title || !price) {
@@ -41,10 +40,7 @@ export async function POST(req) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      product,
-    });
+    return NextResponse.json({ success: true, product });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: "Product creation failed" },
