@@ -1,8 +1,9 @@
+// components/AdminProducts.jsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, Box, LayoutGrid, X, Save } from "lucide-react";
+import { Plus, Pencil, Trash2, LayoutGrid, X, Save } from "lucide-react";
 import ImageUploader from "@/components/ImageUploader";
 import Image from "next/image";
 
@@ -10,10 +11,11 @@ export default function AdminProducts() {
   const [images, setImages] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [editingProduct, setEditingProduct] = useState(null); // Full product object for modal
+  const [editingProduct, setEditingProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // 🔥 Added inStock to initial state
   const [form, setForm] = useState({
     title: "",
     price: "",
@@ -21,6 +23,7 @@ export default function AdminProducts() {
     categoryId: "",
     sizes: "",
     video: "",
+    inStock: true,
   });
 
   useEffect(() => {
@@ -47,44 +50,33 @@ export default function AdminProducts() {
 
     let finalImages = images;
 
-    // 🚀 AUTO UPLOAD IF IMAGES ARE BASE64
     if (images.length && images[0].startsWith("data:")) {
       const uploadedUrls = [];
-
       for (let img of images) {
         const res = await fetch("/api/upload", {
           cache: "no-store",
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            file: img,
-            folder: "levenverse/products",
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file: img, folder: "levenverse/products" }),
         });
-
         const data = await res.json();
-
-        if (data.success) {
-          uploadedUrls.push(data.url);
-        }
+        if (data.success) uploadedUrls.push(data.url);
       }
-
       finalImages = uploadedUrls;
     }
 
+    // 🔥 Added inStock boolean conversion to payload
     const payload = {
       ...form,
       price: Number(form.price),
       sizes: form.sizes.split(",").map((s) => s.trim()),
       images: finalImages,
+      inStock: form.inStock === true || form.inStock === "true",
     };
 
     const url = isUpdate
       ? `/api/products/${editingProduct._id}`
       : "/api/products";
-
     const method = isUpdate ? "PUT" : "POST";
 
     const res = await fetch(url, {
@@ -123,6 +115,7 @@ export default function AdminProducts() {
       categoryId: product.categoryId,
       sizes: product.sizes.join(","),
       video: product.video || "",
+      inStock: product.inStock !== false, // 🔥 Handles older DB items missing this field
     });
     setImages(product.images || []);
     setIsModalOpen(true);
@@ -142,6 +135,7 @@ export default function AdminProducts() {
       categoryId: "",
       sizes: "",
       video: "",
+      inStock: true, // 🔥 Reset to true
     });
     setImages([]);
   };
@@ -160,7 +154,7 @@ export default function AdminProducts() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-10">
-        {/* ADD PRODUCT FORM (ALWAYS VISIBLE) */}
+        {/* ADD PRODUCT FORM */}
         <div className="w-full lg:w-4/12">
           <div className="bg-[#0a0a0a] border border-neutral-900 rounded-3xl p-6 border-t-[#0070f3]">
             <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
@@ -196,7 +190,11 @@ export default function AdminProducts() {
             {products.map((p) => (
               <div
                 key={p._id}
-                className="bg-[#0a0a0a] border border-neutral-900 p-4 rounded-2xl flex items-center gap-4 group hover:border-[#0070f3]/50 transition-all"
+                className={`bg-[#0a0a0a] border p-4 rounded-2xl flex items-center gap-4 group transition-all ${
+                  p.inStock === false
+                    ? "border-red-900/50 opacity-70"
+                    : "border-neutral-900 hover:border-[#0070f3]/50"
+                }`}
               >
                 <Image
                   src={p.images?.[0] || ""}
@@ -206,10 +204,17 @@ export default function AdminProducts() {
                   alt=""
                 />
                 <div className="flex-1">
-                  <h3 className="text-xs font-black uppercase tracking-tight truncate">
-                    {p.title}
-                  </h3>
-                  <p className="text-[#0070f3] text-[10px] font-black italic">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-black uppercase tracking-tight truncate">
+                      {p.title}
+                    </h3>
+                    {p.inStock === false && (
+                      <span className="text-[8px] font-bold bg-red-600/20 text-red-500 px-2 py-0.5 rounded-sm uppercase tracking-widest">
+                        Out of Stock
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[#0070f3] text-[10px] font-black italic mt-0.5">
                     QAR {p.price}
                   </p>
                 </div>
@@ -297,7 +302,7 @@ export default function AdminProducts() {
   );
 }
 
-// Reusable fields to avoid code duplication
+// Reusable fields
 function ProductFormFields({ form, handleChange, categories }) {
   return (
     <div className="space-y-4 w-full contents">
@@ -342,6 +347,23 @@ function ProductFormFields({ form, handleChange, categories }) {
           ))}
         </select>
       </div>
+
+      {/* 🔥 ADDED STOCK STATUS DROPDOWN */}
+      <div className="col-span-full">
+        <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
+          Stock Status
+        </label>
+        <select
+          name="inStock"
+          value={form.inStock}
+          onChange={handleChange}
+          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none"
+        >
+          <option value={true}>IN STOCK</option>
+          <option value={false}>OUT OF STOCK</option>
+        </select>
+      </div>
+
       <div className="col-span-full">
         <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
           Available Sizes
@@ -369,7 +391,7 @@ function ProductFormFields({ form, handleChange, categories }) {
           href="https://www.remove.bg/"
           target="_blank"
           rel="noopener noreferrer"
-          className="block my-4 uppercase font-bold text-red-400"
+          className="block my-4 uppercase font-bold text-red-400 text-[10px]"
         >
           Click to remove the images background
         </a>
