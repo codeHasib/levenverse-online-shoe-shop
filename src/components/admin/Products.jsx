@@ -42,6 +42,15 @@ export default function AdminProducts() {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
+  // 🔥 NEW: Function to shift selected image to index 0
+  const setAsPrimary = (index) => {
+    if (index === 0) return; // Already primary
+    const updatedImages = [...images];
+    const [selectedImage] = updatedImages.splice(index, 1);
+    updatedImages.unshift(selectedImage);
+    setImages(updatedImages);
+  };
+
   const handleSubmit = async (isUpdate = false) => {
     if (!form.title || !form.price)
       return alert("Title and price are required");
@@ -65,7 +74,6 @@ export default function AdminProducts() {
       finalImages = uploadedUrls;
     }
 
-    // 🔥 Added inStock boolean conversion to payload
     const payload = {
       ...form,
       price: Number(form.price),
@@ -115,7 +123,7 @@ export default function AdminProducts() {
       categoryId: product.categoryId,
       sizes: product.sizes.join(","),
       video: product.video || "",
-      inStock: product.inStock !== false, // 🔥 Handles older DB items missing this field
+      inStock: product.inStock !== false, // Handles older DB items missing this field
     });
     setImages(product.images || []);
     setIsModalOpen(true);
@@ -135,7 +143,7 @@ export default function AdminProducts() {
       categoryId: "",
       sizes: "",
       video: "",
-      inStock: true, // 🔥 Reset to true
+      inStock: true, // Reset to true
     });
     setImages([]);
   };
@@ -165,9 +173,13 @@ export default function AdminProducts() {
               handleChange={handleChange}
               categories={categories}
             />
+
             <div className="mt-4">
               <ImageUploader onUploadComplete={setImages} />
+              {/* 🔥 NEW: Image Preview and Selection Grid */}
+              <ImagePreviewGrid images={images} setAsPrimary={setAsPrimary} />
             </div>
+
             <button
               onClick={() => handleSubmit(false)}
               disabled={isLoading}
@@ -281,6 +293,11 @@ export default function AdminProducts() {
                     Update Media
                   </p>
                   <ImageUploader onUploadComplete={setImages} />
+                  {/* 🔥 NEW: Image Preview and Selection Grid */}
+                  <ImagePreviewGrid
+                    images={images}
+                    setAsPrimary={setAsPrimary}
+                  />
                 </div>
 
                 <div className="flex gap-4 mt-10">
@@ -314,7 +331,7 @@ function ProductFormFields({ form, handleChange, categories }) {
           name="title"
           value={form.title}
           onChange={handleChange}
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none"
+          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
         />
       </div>
       <div>
@@ -326,7 +343,7 @@ function ProductFormFields({ form, handleChange, categories }) {
           type="number"
           value={form.price}
           onChange={handleChange}
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none"
+          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
         />
       </div>
       <div>
@@ -337,7 +354,7 @@ function ProductFormFields({ form, handleChange, categories }) {
           name="categoryId"
           value={form.categoryId}
           onChange={handleChange}
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none"
+          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
         >
           <option value="">SELECT</option>
           {categories.map((cat) => (
@@ -348,7 +365,6 @@ function ProductFormFields({ form, handleChange, categories }) {
         </select>
       </div>
 
-      {/* 🔥 ADDED STOCK STATUS DROPDOWN */}
       <div className="col-span-full">
         <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
           Stock Status
@@ -357,7 +373,7 @@ function ProductFormFields({ form, handleChange, categories }) {
           name="inStock"
           value={form.inStock}
           onChange={handleChange}
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none"
+          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
         >
           <option value={true}>IN STOCK</option>
           <option value={false}>OUT OF STOCK</option>
@@ -373,7 +389,7 @@ function ProductFormFields({ form, handleChange, categories }) {
           value={form.sizes}
           onChange={handleChange}
           placeholder="40, 41, 42"
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none"
+          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
         />
       </div>
       <div className="col-span-full">
@@ -385,7 +401,7 @@ function ProductFormFields({ form, handleChange, categories }) {
           rows="3"
           value={form.description}
           onChange={handleChange}
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-medium focus:border-[#0070f3] outline-none"
+          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-medium focus:border-[#0070f3] outline-none text-white"
         />
         <a
           href="https://www.remove.bg/"
@@ -395,6 +411,43 @@ function ProductFormFields({ form, handleChange, categories }) {
         >
           Click to remove the images background
         </a>
+      </div>
+    </div>
+  );
+}
+
+// 🔥 NEW: Reusable Image Preview Grid component
+function ImagePreviewGrid({ images, setAsPrimary }) {
+  if (!images || images.length === 0) return null;
+
+  return (
+    <div className="mt-6 border-t border-neutral-900 pt-4">
+      <p className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-3">
+        Select Primary Thumbnail
+      </p>
+      <div className="grid grid-cols-4 gap-3">
+        {images.map((img, idx) => (
+          <div
+            key={idx}
+            onClick={() => setAsPrimary(idx)}
+            className={`relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
+              idx === 0
+                ? "border-[#0070f3] shadow-[0_0_15px_rgba(0,112,243,0.3)]"
+                : "border-neutral-800 hover:border-neutral-500 opacity-60 hover:opacity-100"
+            }`}
+          >
+            <img
+              src={img}
+              alt={`preview-${idx}`}
+              className="w-full h-full object-cover bg-black"
+            />
+            {idx === 0 && (
+              <div className="absolute bottom-0 inset-x-0 bg-[#0070f3] text-white text-[8px] font-black tracking-widest uppercase text-center py-1.5">
+                Primary
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
