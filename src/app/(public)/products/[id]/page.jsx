@@ -63,13 +63,13 @@ export default function ProductPage() {
     );
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20 px-4 md:px-6">
+    <div className="min-h-screen bg-white pt-24 pb-20 px-4 md:px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16">
           {/* --- LEFT: RESPONSIVE GALLERY --- */}
-          <div className="lg:col-span-7 flex flex-col md:flex-row gap-4">
-            {/* Thumbnail Strip: Horizontal on Mobile, Vertical on Desktop */}
-            <div className="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-hide">
+          <div className="lg:col-span-7 flex flex-col md:flex-row gap-4 min-w-0">
+            {/* Thumbnail Strip */}
+            <div className="w-full md:w-auto flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-hide">
               {product.images?.map((img, idx) => (
                 <button
                   key={idx}
@@ -91,7 +91,7 @@ export default function ProductPage() {
             </div>
 
             {/* Main Stage Image */}
-            <div className="relative flex-grow aspect-[4/5] bg-[#f9f9f9] rounded-3xl overflow-hidden order-1 md:order-2">
+            <div className="relative w-full flex-grow aspect-[4/5] bg-[#f9f9f9] rounded-3xl overflow-hidden order-1 md:order-2">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeImageIndex}
@@ -122,13 +122,13 @@ export default function ProductPage() {
           </div>
 
           {/* --- RIGHT: PRODUCT INFO --- */}
-          <div className="lg:col-span-5 pt-4">
-            <nav className="flex items-center gap-2 mb-6 text-[9px] tracking-widest uppercase text-neutral-400 font-bold">
+          <div className="lg:col-span-5 pt-4 min-w-0">
+            <nav className="flex items-center gap-2 mb-6 text-[9px] tracking-widest uppercase text-neutral-400 font-bold flex-wrap">
               <span>Catalog</span> <ChevronRight size={8} />{" "}
               <span className="text-black">{product.categoryId?.name}</span>
             </nav>
 
-            <h1 className="text-3xl tracking-tight uppercase font-medium text-black mb-2">
+            <h1 className="text-3xl tracking-tight uppercase font-medium text-black mb-2 break-words">
               {product.title}
             </h1>
             <p className="text-2xl tracking-tighter text-[#0070f3] mb-8 font-bold">
@@ -162,8 +162,8 @@ export default function ProductPage() {
 
               {/* Quantity and Actions */}
               <div className="flex flex-col gap-4">
-                <div className="flex gap-4">
-                  <div className="flex items-center bg-[#f9f9f9] rounded-2xl p-1 border border-neutral-100">
+                <div className="flex flex-wrap sm:flex-nowrap gap-4">
+                  <div className="flex items-center bg-[#f9f9f9] rounded-2xl p-1 border border-neutral-100 w-full sm:w-auto shrink-0 justify-between sm:justify-start">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="w-12 h-12 flex items-center justify-center hover:bg-white rounded-xl transition-all"
@@ -183,7 +183,7 @@ export default function ProductPage() {
 
                   <button
                     onClick={() => addToCart(product, quantity, selectedSize)}
-                    className="flex-1 bg-black text-white text-[11px] tracking-[0.2em] uppercase font-bold rounded-2xl py-4 hover:bg-neutral-800 transition-all flex items-center justify-center gap-3"
+                    className="flex-1 w-full bg-black text-white text-[11px] tracking-[0.2em] uppercase font-bold rounded-2xl py-4 hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 whitespace-nowrap"
                   >
                     <ShoppingBag size={18} /> Add to Bag
                   </button>
@@ -205,21 +205,21 @@ export default function ProductPage() {
                 <h2 className="text-[10px] tracking-[0.3em] uppercase font-bold mb-4 text-black">
                   Product Details
                 </h2>
-                <p className="text-[13px] leading-relaxed text-neutral-500 tracking-wide mb-10 italic">
+                <p className="text-[13px] leading-relaxed text-neutral-500 tracking-wide mb-10 italic break-words">
                   &quot;{product.description}&quot;
                 </p>
               </div>
 
               {/* Trust Badges */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                  <Truck size={16} className="text-[#0070f3]" />
+                  <Truck size={16} className="text-[#0070f3] shrink-0" />
                   <span className="text-[9px] tracking-widest uppercase font-bold text-neutral-600 leading-tight">
                     Express <br /> Shipping
                   </span>
                 </div>
                 <div className="flex items-center gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                  <ShieldCheck size={16} className="text-[#0070f3]" />
+                  <ShieldCheck size={16} className="text-[#0070f3] shrink-0" />
                   <span className="text-[9px] tracking-widest uppercase font-bold text-neutral-600 leading-tight">
                     Secure <br /> Payment
                   </span>
@@ -230,7 +230,7 @@ export default function ProductPage() {
         </div>
 
         {/* --- REVIEWS --- */}
-        <div className="mt-24 pt-20 border-t border-neutral-100 max-w-4xl mx-auto">
+        <div className="mt-24 pt-20 border-t border-neutral-100 max-w-4xl mx-auto px-4 md:px-0">
           <Reviews productId={id} />
         </div>
       </div>
