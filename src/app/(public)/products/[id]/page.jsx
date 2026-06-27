@@ -91,7 +91,7 @@ export default function ProductPage() {
             </div>
 
             {/* Main Stage Image */}
-            <div className="relative w-full flex-grow aspect-[4/5] bg-[#f9f9f9] rounded-3xl overflow-hidden order-1 md:order-2">
+            <div className="relative w-full flex-grow aspect-[4/5] rounded-3xl overflow-hidden order-1 md:order-2">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeImageIndex}

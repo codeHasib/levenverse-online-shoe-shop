@@ -145,7 +145,7 @@ export default function ProductsPage() {
                                   router.push(`/products/${product._id}`);
                                 }
                               }}
-                              className={`relative aspect-[3/4] bg-[#f8f8f8] overflow-hidden rounded-2xl ${
+                              className={`relative aspect-[3/4] overflow-hidden rounded-2xl ${
                                 isOutOfStock
                                   ? "cursor-not-allowed"
                                   : "cursor-pointer"
@@ -155,7 +155,7 @@ export default function ProductsPage() {
                                 src={product.images?.[0] || "/placeholder.png"}
                                 alt={product.title}
                                 fill
-                                className={`object-cover rounded-2xl transition-all duration-700 ${
+                                className={`object-contain rounded-2xl transition-all duration-700 ${
                                   isOutOfStock
                                     ? "grayscale-[60%] opacity-60"
                                     : "group-hover:scale-105"
