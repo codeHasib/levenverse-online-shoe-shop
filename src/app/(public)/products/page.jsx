@@ -75,19 +75,19 @@ export default function ProductsPage() {
 
   return (
     <>
-      <div className="relative w-full h-[250px] md:h-[600px] overflow-hidden">
+      <div className="relative w-full h-[230px] md:h-[600px] overflow-hidden">
         <Image
           src={BannerImg}
           alt="Levenverse Discount Banner"
           fill
           priority
-          className="object-center object-cover" // Added object-cover to ensure it scales nicely
+          className="object-cover object-center"
         />
       </div>
-      <div className="min-h-screen bg-white pt-24 pb-20 px-6">
+      <div className="min-h-screen bg-white pt-10 pb-10 px-6">
         <div className="max-w-7xl mx-auto">
           {/* --- HEADER & CONTROLS --- */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10">
             <div>
               <h1 className="text-2xl md:text-3xl tracking-[0.5em] uppercase font-light text-black">
                 Collections
