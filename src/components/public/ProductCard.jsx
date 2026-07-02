@@ -23,10 +23,10 @@ export default function ProductCard({ product, featured }) {
             src={product.images[0]}
             alt={product.title}
             fill
-            className={`object-cover transition-all duration-700 ${
+            className={`object-contain transition-all duration-700 ${
               isOutOfStock
                 ? "grayscale-[60%] opacity-60" // Washes out the image when unavailable
-                : "group-hover:scale-110"
+                : "group-hover:scale-102"
             }`}
           />
         ) : (
