@@ -1,9 +1,17 @@
-// components/AdminProducts.jsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, LayoutGrid, X, Save } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  LayoutGrid,
+  X,
+  Save,
+  Palette,
+  Trash,
+} from "lucide-react";
 import ImageUploader from "@/components/ImageUploader";
 import Image from "next/image";
 
@@ -15,15 +23,14 @@ export default function AdminProducts() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🔥 Added inStock to initial state
+  // 🔥 NEW: Form state uses a `colors` array instead of global sizes/stock
   const [form, setForm] = useState({
     title: "",
     price: "",
     description: "",
     categoryId: "",
-    sizes: "",
     video: "",
-    inStock: true,
+    colors: [{ colorName: "", sizes: "", inStock: true }],
   });
 
   useEffect(() => {
@@ -42,9 +49,27 @@ export default function AdminProducts() {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  // 🔥 NEW: Function to shift selected image to index 0
+  // 🔥 NEW: Color Management Handlers
+  const handleColorChange = (index, field, value) => {
+    const updatedColors = [...form.colors];
+    updatedColors[index][field] = value;
+    setForm({ ...form, colors: updatedColors });
+  };
+
+  const addColor = () => {
+    setForm({
+      ...form,
+      colors: [...form.colors, { colorName: "", sizes: "", inStock: true }],
+    });
+  };
+
+  const removeColor = (index) => {
+    const updatedColors = form.colors.filter((_, i) => i !== index);
+    setForm({ ...form, colors: updatedColors });
+  };
+
   const setAsPrimary = (index) => {
-    if (index === 0) return; // Already primary
+    if (index === 0) return;
     const updatedImages = [...images];
     const [selectedImage] = updatedImages.splice(index, 1);
     updatedImages.unshift(selectedImage);
@@ -55,10 +80,14 @@ export default function AdminProducts() {
     if (!form.title || !form.price)
       return alert("Title and price are required");
 
+    // Validate that at least one color exists and has a name
+    if (form.colors.length === 0 || !form.colors[0].colorName) {
+      return alert("At least one color variant with a name is required");
+    }
+
     setIsLoading(true);
 
     let finalImages = images;
-
     if (images.length && images[0].startsWith("data:")) {
       const uploadedUrls = [];
       for (let img of images) {
@@ -74,12 +103,24 @@ export default function AdminProducts() {
       finalImages = uploadedUrls;
     }
 
+    // 🔥 NEW: Format sizes from string to array for EACH color
+    const formattedColors = form.colors.map((c) => ({
+      colorName: c.colorName,
+      sizes:
+        typeof c.sizes === "string"
+          ? c.sizes
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : c.sizes,
+      inStock: c.inStock === true || c.inStock === "true",
+    }));
+
     const payload = {
       ...form,
       price: Number(form.price),
-      sizes: form.sizes.split(",").map((s) => s.trim()),
+      colors: formattedColors,
       images: finalImages,
-      inStock: form.inStock === true || form.inStock === "true",
     };
 
     const url = isUpdate
@@ -106,24 +147,29 @@ export default function AdminProducts() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
-    const res = await fetch(`/api/products/${id}`, {
-      method: "DELETE",
-      cache: "no-store",
-    });
+    const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.success) fetchProducts();
   };
 
   const openEditModal = (product) => {
     setEditingProduct(product);
+
+    // 🔥 NEW: Parse DB colors back into string format for inputs
+    const parsedColors = product.colors?.length
+      ? product.colors.map((c) => ({
+          ...c,
+          sizes: c.sizes.join(", "),
+        }))
+      : [{ colorName: "", sizes: "", inStock: true }];
+
     setForm({
       title: product.title,
       price: product.price,
       description: product.description,
       categoryId: product.categoryId,
-      sizes: product.sizes.join(","),
       video: product.video || "",
-      inStock: product.inStock !== false, // Handles older DB items missing this field
+      colors: parsedColors,
     });
     setImages(product.images || []);
     setIsModalOpen(true);
@@ -141,9 +187,8 @@ export default function AdminProducts() {
       price: "",
       description: "",
       categoryId: "",
-      sizes: "",
       video: "",
-      inStock: true, // Reset to true
+      colors: [{ colorName: "", sizes: "", inStock: true }],
     });
     setImages([]);
   };
@@ -168,15 +213,19 @@ export default function AdminProducts() {
             <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
               <Plus size={16} className="text-[#0070f3]" /> New Entry
             </h2>
+
+            {/* Form Fields component now takes color handlers */}
             <ProductFormFields
               form={form}
               handleChange={handleChange}
               categories={categories}
+              handleColorChange={handleColorChange}
+              addColor={addColor}
+              removeColor={removeColor}
             />
 
             <div className="mt-4">
               <ImageUploader onUploadComplete={setImages} />
-              {/* 🔥 NEW: Image Preview and Selection Grid */}
               <ImagePreviewGrid images={images} setAsPrimary={setAsPrimary} />
             </div>
 
@@ -199,53 +248,66 @@ export default function AdminProducts() {
             </h2>
           </div>
           <div className="grid gap-3">
-            {products.map((p) => (
-              <div
-                key={p._id}
-                className={`bg-[#0a0a0a] border p-4 rounded-2xl flex items-center gap-4 group transition-all ${
-                  p.inStock === false
-                    ? "border-red-900/50 opacity-70"
-                    : "border-neutral-900 hover:border-[#0070f3]/50"
-                }`}
-              >
-                <Image
-                  src={p.images?.[0] || ""}
-                  width={55}
-                  height={55}
-                  className="bg-black rounded-xl object-cover border border-neutral-800"
-                  alt=""
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xs font-black uppercase tracking-tight truncate">
-                      {p.title}
-                    </h3>
-                    {p.inStock === false && (
-                      <span className="text-[8px] font-bold bg-red-600/20 text-red-500 px-2 py-0.5 rounded-sm uppercase tracking-widest">
-                        Out of Stock
-                      </span>
-                    )}
+            {products.map((p) => {
+              // Check if ALL colors are out of stock
+              const isCompletelyOutOfStock =
+                p.colors?.length > 0 &&
+                p.colors.every((c) => c.inStock === false);
+
+              return (
+                <div
+                  key={p._id}
+                  className={`bg-[#0a0a0a] border p-4 rounded-2xl flex items-center gap-4 group transition-all ${
+                    isCompletelyOutOfStock
+                      ? "border-red-900/50 opacity-70"
+                      : "border-neutral-900 hover:border-[#0070f3]/50"
+                  }`}
+                >
+                  <Image
+                    src={p.images?.[0] || ""}
+                    width={55}
+                    height={55}
+                    className="bg-black rounded-xl object-cover border border-neutral-800"
+                    alt=""
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xs font-black uppercase tracking-tight truncate">
+                        {p.title}
+                      </h3>
+                      {isCompletelyOutOfStock && (
+                        <span className="text-[8px] font-bold bg-red-600/20 text-red-500 px-2 py-0.5 rounded-sm uppercase tracking-widest">
+                          Sold Out
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex gap-2 items-center mt-1">
+                      <p className="text-[#0070f3] text-[10px] font-black italic">
+                        QAR {p.price}
+                      </p>
+                      <span className="text-neutral-600 text-[10px]">•</span>
+                      <p className="text-neutral-500 text-[10px] font-bold">
+                        {p.colors?.length || 0} Colors
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-[#0070f3] text-[10px] font-black italic mt-0.5">
-                    QAR {p.price}
-                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => openEditModal(p)}
+                      className="p-3 bg-neutral-900 rounded-xl hover:bg-white hover:text-black transition-all"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p._id)}
+                      className="p-3 bg-neutral-900 rounded-xl hover:bg-red-600 transition-all text-neutral-500 hover:text-white"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => openEditModal(p)}
-                    className="p-3 bg-neutral-900 rounded-xl hover:bg-white hover:text-black transition-all"
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p._id)}
-                    className="p-3 bg-neutral-900 rounded-xl hover:bg-red-600 transition-all text-neutral-500 hover:text-white"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -280,11 +342,14 @@ export default function AdminProducts() {
                   </button>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid gap-6">
                   <ProductFormFields
                     form={form}
                     handleChange={handleChange}
                     categories={categories}
+                    handleColorChange={handleColorChange}
+                    addColor={addColor}
+                    removeColor={removeColor}
                   />
                 </div>
 
@@ -293,7 +358,6 @@ export default function AdminProducts() {
                     Update Media
                   </p>
                   <ImageUploader onUploadComplete={setImages} />
-                  {/* 🔥 NEW: Image Preview and Selection Grid */}
                   <ImagePreviewGrid
                     images={images}
                     setAsPrimary={setAsPrimary}
@@ -319,8 +383,15 @@ export default function AdminProducts() {
   );
 }
 
-// Reusable fields
-function ProductFormFields({ form, handleChange, categories }) {
+// 🔥 REFACTORED: Reusable fields now include dynamic color mapping
+function ProductFormFields({
+  form,
+  handleChange,
+  categories,
+  handleColorChange,
+  addColor,
+  removeColor,
+}) {
   return (
     <div className="space-y-4 w-full contents">
       <div className="col-span-full">
@@ -334,64 +405,40 @@ function ProductFormFields({ form, handleChange, categories }) {
           className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
         />
       </div>
-      <div>
-        <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
-          Price (QAR)
-        </label>
-        <input
-          name="price"
-          type="number"
-          value={form.price}
-          onChange={handleChange}
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
-        />
-      </div>
-      <div>
-        <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
-          Category
-        </label>
-        <select
-          name="categoryId"
-          value={form.categoryId}
-          onChange={handleChange}
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
-        >
-          <option value="">SELECT</option>
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat._id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+
+      <div className="grid grid-cols-2 gap-4 col-span-full">
+        <div>
+          <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
+            Price (QAR)
+          </label>
+          <input
+            name="price"
+            type="number"
+            value={form.price}
+            onChange={handleChange}
+            className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
+          />
+        </div>
+        <div>
+          <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
+            Category
+          </label>
+          <select
+            name="categoryId"
+            value={form.categoryId}
+            onChange={handleChange}
+            className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
+          >
+            <option value="">SELECT</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div className="col-span-full">
-        <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
-          Stock Status
-        </label>
-        <select
-          name="inStock"
-          value={form.inStock}
-          onChange={handleChange}
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
-        >
-          <option value={true}>IN STOCK</option>
-          <option value={false}>OUT OF STOCK</option>
-        </select>
-      </div>
-
-      <div className="col-span-full">
-        <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
-          Available Sizes
-        </label>
-        <input
-          name="sizes"
-          value={form.sizes}
-          onChange={handleChange}
-          placeholder="40, 41, 42"
-          className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
-        />
-      </div>
       <div className="col-span-full">
         <label className="text-[9px] font-black text-neutral-500 uppercase tracking-widest ml-1">
           Description
@@ -403,23 +450,100 @@ function ProductFormFields({ form, handleChange, categories }) {
           onChange={handleChange}
           className="w-full bg-black border border-neutral-800 rounded-xl p-4 text-xs font-medium focus:border-[#0070f3] outline-none text-white"
         />
-        <a
-          href="https://www.remove.bg/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block my-4 uppercase font-bold text-red-400 text-[10px]"
+      </div>
+
+      {/* 🔥 NEW: Color Variants System Area */}
+      <div className="col-span-full mt-6 bg-neutral-900/30 p-4 rounded-2xl border border-neutral-800">
+        <div className="flex justify-between items-center mb-4">
+          <label className="text-[10px] font-black text-[#0070f3] flex items-center gap-2 uppercase tracking-widest">
+            <Palette size={14} /> Color Variants
+          </label>
+        </div>
+
+        <div className="space-y-4">
+          {form.colors.map((colorItem, index) => (
+            <div
+              key={index}
+              className="bg-black p-4 rounded-xl border border-neutral-800 relative"
+            >
+              {/* Delete Color Button (hidden if only 1 color left) */}
+              {form.colors.length > 1 && (
+                <button
+                  onClick={() => removeColor(index)}
+                  className="absolute top-3 right-3 text-neutral-600 hover:text-red-500 transition-colors"
+                >
+                  <Trash size={14} />
+                </button>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label className="text-[8px] font-bold text-neutral-500 uppercase tracking-widest">
+                    Color Name
+                  </label>
+                  <input
+                    value={colorItem.colorName}
+                    onChange={(e) =>
+                      handleColorChange(index, "colorName", e.target.value)
+                    }
+                    placeholder="e.g., Midnight Black"
+                    className="w-full bg-transparent border-b border-neutral-800 py-2 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[8px] font-bold text-neutral-500 uppercase tracking-widest">
+                    Stock Status
+                  </label>
+                  <select
+                    value={colorItem.inStock}
+                    onChange={(e) =>
+                      handleColorChange(index, "inStock", e.target.value)
+                    }
+                    className="w-full bg-transparent border-b border-neutral-800 py-2 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
+                  >
+                    <option value={true} className="bg-black">
+                      IN STOCK
+                    </option>
+                    <option value={false} className="bg-black">
+                      OUT OF STOCK
+                    </option>
+                  </select>
+                </div>
+
+                <div className="col-span-full">
+                  <label className="text-[8px] font-bold text-neutral-500 uppercase tracking-widest">
+                    Sizes for {colorItem.colorName || "this color"}
+                  </label>
+                  <input
+                    value={colorItem.sizes}
+                    onChange={(e) =>
+                      handleColorChange(index, "sizes", e.target.value)
+                    }
+                    placeholder="40, 41, 42"
+                    className="w-full bg-transparent border-b border-neutral-800 py-2 text-xs font-bold focus:border-[#0070f3] outline-none text-white"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={addColor}
+          className="mt-4 w-full border border-dashed border-neutral-700 hover:border-[#0070f3] text-neutral-500 hover:text-[#0070f3] transition-all rounded-xl py-3 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
         >
-          Click to remove the images background
-        </a>
+          <Plus size={14} /> Add Another Color
+        </button>
       </div>
     </div>
   );
 }
 
-// 🔥 NEW: Reusable Image Preview Grid component
+// Preview Grid remains unchanged
 function ImagePreviewGrid({ images, setAsPrimary }) {
   if (!images || images.length === 0) return null;
-
   return (
     <div className="mt-6 border-t border-neutral-900 pt-4">
       <p className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-3">

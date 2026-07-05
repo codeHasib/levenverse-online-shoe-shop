@@ -14,6 +14,7 @@ import {
   Minus,
   Plus,
   ArrowRight,
+  Check,
 } from "lucide-react";
 
 export default function ProductPage() {
@@ -23,6 +24,9 @@ export default function ProductPage() {
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // 🔥 NEW: Added color state
+  const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -35,8 +39,17 @@ export default function ProductPage() {
         const data = await res.json();
         const foundProduct = data.products.find((item) => item._id == id);
         setProduct(foundProduct);
-        if (foundProduct?.sizes?.length > 0)
-          setSelectedSize(foundProduct.sizes[0]);
+
+        // 🔥 NEW: Set initial color and size based on new schema
+        if (foundProduct?.colors?.length > 0) {
+          const initialColor =
+            foundProduct.colors.find((c) => c.inStock) ||
+            foundProduct.colors[0];
+          setSelectedColor(initialColor);
+          if (initialColor.sizes?.length > 0) {
+            setSelectedSize(initialColor.sizes[0]);
+          }
+        }
       } catch (err) {
         console.error("FETCH ERROR:", err);
       } finally {
@@ -45,6 +58,34 @@ export default function ProductPage() {
     };
     fetchProduct();
   }, [id]);
+
+  // 🔥 NEW: Handle Color Selection
+  const handleColorSelect = (colorObj, index) => {
+    if (!colorObj.inStock) return; // Prevent selecting out of stock colors
+
+    setSelectedColor(colorObj);
+
+    // Auto-select first available size for this color
+    if (colorObj.sizes?.length > 0) {
+      setSelectedSize(colorObj.sizes[0]);
+    } else {
+      setSelectedSize("");
+    }
+
+    // BONUS: Attempt to change image based on color index
+    if (product.images && product.images.length > index) {
+      setActiveImageIndex(index);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedColor) return alert("Please select a color");
+    if (!selectedSize && selectedColor.sizes.length > 0)
+      return alert("Please select a size");
+
+    // Pass colorName to cart store
+    addToCart(product, quantity, selectedSize, selectedColor.colorName);
+  };
 
   if (loading)
     return (
@@ -112,12 +153,6 @@ export default function ProductPage() {
                   />
                 </motion.div>
               </AnimatePresence>
-
-              <div className="absolute bottom-6 right-6 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full border border-neutral-100">
-                <span className="text-[9px] tracking-widest uppercase font-bold text-neutral-500">
-                  {activeImageIndex + 1} / {product.images?.length}
-                </span>
-              </div>
             </div>
           </div>
 
@@ -136,14 +171,53 @@ export default function ProductPage() {
             </p>
 
             <div className="space-y-10">
-              {/* Size Selector */}
-              {product.sizes?.length > 0 && (
+              {/* 🔥 NEW: Color Selector */}
+              {product.colors?.length > 0 && (
+                <div>
+                  <span className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 block mb-4 font-bold">
+                    Select Color:{" "}
+                    <span className="text-black">
+                      {selectedColor?.colorName}
+                    </span>
+                  </span>
+                  <div className="flex flex-wrap gap-3">
+                    {product.colors.map((colorItem, idx) => {
+                      const isSelected =
+                        selectedColor?.colorName === colorItem.colorName;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleColorSelect(colorItem, idx)}
+                          disabled={!colorItem.inStock}
+                          className={`px-4 h-12 flex items-center justify-center text-[12px] font-bold rounded-xl border-2 transition-all ${
+                            !colorItem.inStock
+                              ? "opacity-40 cursor-not-allowed border-neutral-100 bg-neutral-50 text-neutral-400 line-through"
+                              : isSelected
+                                ? "bg-black text-white border-black"
+                                : "bg-white border-neutral-100 hover:border-black text-neutral-600"
+                          }`}
+                        >
+                          {colorItem.colorName}
+                          {!colorItem.inStock && (
+                            <span className="ml-2 text-[8px] uppercase tracking-widest text-red-500">
+                              (Sold Out)
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 🔥 UPDATED: Size Selector (Depends on selectedColor) */}
+              {selectedColor?.sizes?.length > 0 && (
                 <div>
                   <span className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 block mb-4 font-bold">
                     Select Size
                   </span>
                   <div className="flex flex-wrap gap-3">
-                    {product.sizes.map((size) => (
+                    {selectedColor.sizes.map((size) => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
@@ -182,7 +256,7 @@ export default function ProductPage() {
                   </div>
 
                   <button
-                    onClick={() => addToCart(product, quantity, selectedSize)}
+                    onClick={handleAddToCart}
                     className="flex-1 w-full bg-black text-white text-[11px] tracking-[0.2em] uppercase font-bold rounded-2xl py-4 hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 whitespace-nowrap"
                   >
                     <ShoppingBag size={18} /> Add to Bag
@@ -191,7 +265,7 @@ export default function ProductPage() {
 
                 <button
                   onClick={() => {
-                    addToCart(product, quantity, selectedSize);
+                    handleAddToCart();
                     router.push("/cart");
                   }}
                   className="w-full bg-[#0070f3] text-white text-[11px] tracking-[0.2em] uppercase font-bold rounded-2xl py-5 hover:bg-blue-600 transition-all flex items-center justify-center gap-3"
@@ -208,22 +282,6 @@ export default function ProductPage() {
                 <p className="text-[13px] leading-relaxed text-neutral-500 tracking-wide mb-10 italic break-words">
                   &quot;{product.description}&quot;
                 </p>
-              </div>
-
-              {/* Trust Badges */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                  <Truck size={16} className="text-[#0070f3] shrink-0" />
-                  <span className="text-[9px] tracking-widest uppercase font-bold text-neutral-600 leading-tight">
-                    Express <br /> Shipping
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                  <ShieldCheck size={16} className="text-[#0070f3] shrink-0" />
-                  <span className="text-[9px] tracking-widest uppercase font-bold text-neutral-600 leading-tight">
-                    Secure <br /> Payment
-                  </span>
-                </div>
               </div>
             </div>
           </div>

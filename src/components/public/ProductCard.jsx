@@ -25,7 +25,7 @@ export default function ProductCard({ product, featured }) {
             fill
             className={`object-contain transition-all duration-700 ${
               isOutOfStock
-                ? "grayscale-[60%] opacity-60" // Washes out the image when unavailable
+                ? "grayscale-[60%] opacity-60" 
                 : "group-hover:scale-102"
             }`}
           />

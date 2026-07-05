@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-// CREATE PRODUCT (WITH CLOUDINARY)
 export async function POST(req) {
   try {
     await connectDB();
@@ -18,20 +17,8 @@ export async function POST(req) {
       categoryId,
       images = [],
       video,
-      sizes = [],
-      inStock = true, // 🔥 EXTRACT INSTOCK
+      colors = [], // 🔥 EXTRACT NEW COLORS ARRAY
     } = body;
-
-    const product = await Product.create({
-      title,
-      description,
-      price,
-      categoryId,
-      images,
-      video,
-      sizes,
-      inStock, // 🔥 SAVE TO DB
-    });
 
     if (!title || !price) {
       return NextResponse.json(
@@ -40,8 +27,19 @@ export async function POST(req) {
       );
     }
 
+    const product = await Product.create({
+      title,
+      description,
+      price,
+      categoryId,
+      images,
+      video,
+      colors, // 🔥 SAVE TO DB
+    });
+
     return NextResponse.json({ success: true, product });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { success: false, error: "Product creation failed" },
       { status: 500 },
@@ -56,7 +54,7 @@ export async function GET() {
     const products = await Product.find()
       .populate({
         path: "categoryId",
-        select: "name slug", // ✅ only needed fields
+        select: "name slug",
       })
       .sort({ createdAt: -1 });
 
@@ -65,8 +63,6 @@ export async function GET() {
       products,
     });
   } catch (error) {
-    console.error("🔥 PRODUCT POPULATE ERROR:", error);
-
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 },

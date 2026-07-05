@@ -1,5 +1,11 @@
-// models/Product.js
 import mongoose from "mongoose";
+
+// Sub-schema for individual colors/variants
+const colorVariantSchema = new mongoose.Schema({
+  colorName: { type: String, required: true, trim: true },
+  sizes: { type: [String], default: [] },
+  inStock: { type: Boolean, default: true },
+});
 
 const productSchema = new mongoose.Schema(
   {
@@ -9,13 +15,9 @@ const productSchema = new mongoose.Schema(
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
     images: { type: [String], default: [] },
     video: { type: String },
-    sizes: { type: [String], default: [] },
 
-    // 🔥 ADDED THIS FIELD
-    inStock: {
-      type: Boolean,
-      default: true,
-    },
+    // 🔥 NEW: Array of color variants replacing global sizes/inStock
+    colors: { type: [colorVariantSchema], default: [] },
   },
   { timestamps: true },
 );

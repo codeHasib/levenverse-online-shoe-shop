@@ -9,10 +9,11 @@ export const sendOrderEmail = async (order) => {
     },
   });
 
+  // 🔥 NEW: Added `item.color` to the string output
   const itemsText = order.items
     .map(
       (item) =>
-        `${item.title} (Size: ${item.size}) x${item.quantity} - ৳${item.price}`
+        `${item.title} (Color: ${item.color || "Default"}, Size: ${item.size || "N/A"}) x${item.quantity} - ৳${item.price}`
     )
     .join("\n");
 
