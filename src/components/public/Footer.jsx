@@ -27,7 +27,8 @@ export default function Footer() {
             {/* SOCIAL ICONS USING SVG FOR STABILITY */}
             <div className="flex gap-6 items-center pt-2">
               <a
-                href="#"
+                href="https://www.instagram.com/leven_verse?igsh=eGcxdDlpdm91ZGRo"
+                target="_blank"
                 className="text-neutral-400 hover:text-[#0070f3] transition-colors"
               >
                 <svg
