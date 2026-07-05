@@ -68,10 +68,11 @@ export default function ContactSection() {
                     Available for instant sizing & styling advice.
                   </p>
                   <a
-                    href="https://wa.me/974XXXXXXXX"
+                    href="https://wa.me/97477250484"
+                    target="_blank"
                     className="text-[11px] text-[#0070f3] tracking-widest uppercase border-b border-blue-100 pb-0.5"
                   >
-                    +974 XXXX XXXX
+                    +97477250484
                   </a>
                 </div>
               </div>
@@ -91,7 +92,7 @@ export default function ContactSection() {
                     href="mailto:support@levenverse.com"
                     className="text-[11px] text-[#0070f3] tracking-widest uppercase border-b border-blue-100 pb-0.5"
                   >
-                    hello@levenverse.com
+                    levenverse@gmail.com
                   </a>
                 </div>
               </div>
@@ -102,11 +103,10 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <h4 className="text-[10px] tracking-[0.3em] uppercase font-bold mb-1 text-black">
-                    Doha Headquarters
+                    Qatar Headquarters
                   </h4>
                   <p className="text-[13px] text-neutral-500 leading-relaxed">
-                    Lusail Marina, Tower A<br />
-                    Doha, Qatar
+                    Qatar
                   </p>
                 </div>
               </div>

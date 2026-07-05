@@ -27,30 +27,48 @@ const InstagramIcon = (props) => (
   </svg>
 );
 
+const MailIcon = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z" />
+    <path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10" />
+  </svg>
+);
+
 export default function ContactPage() {
   const contactMethods = [
     {
       icon: WhatsAppIcon,
       title: "WhatsApp Support",
-      value: "+974 XXXX XXXX",
+      value: "+974 77250484",
       label: "Instant Response",
       color: "bg-green-50 text-green-600",
-      link: "https://wa.me/974XXXXXXXX",
+      link: "https://wa.me/97477250484",
     },
     {
       icon: InstagramIcon,
       title: "Instagram DM",
-      value: "@levenverse.qa",
+      value: "@levenverse",
       label: "Daily Updates",
       color: "bg-purple-50 text-purple-600",
-      link: "https://instagram.com/levenverse.qa",
+      link: "https://www.instagram.com/leven_verse?igsh=eGcxdDlpdm91ZGRo",
     },
     {
-      icon: Mail,
+      icon: MailIcon,
       title: "Email Inquiry",
       value: "hello@levenverse.com",
       label: "Official Support",
-      color: "bg-blue-50 text-[#0070f3]",
+      color: "bg-blue-50 text-black",
       link: "mailto:hello@levenverse.com",
     },
   ];
@@ -139,7 +157,7 @@ export default function ContactPage() {
                     Fulfillment Hub
                   </h4>
                   <p className="text-[11px] text-neutral-400 uppercase mt-1">
-                    Doha, Qatar
+                    Qatar
                   </p>
                   <p className="text-[11px] text-neutral-400 uppercase italic">
                     Nationwide Delivery Coverage

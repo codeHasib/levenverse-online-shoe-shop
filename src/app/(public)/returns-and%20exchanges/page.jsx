@@ -137,9 +137,13 @@ export default function ReturnsRefunds() {
               Our Qatar-based team is ready to help.
             </p>
           </div>
-          <button className="bg-black text-white px-12 py-5 rounded-2xl text-[10px] tracking-[0.4em] uppercase font-bold hover:bg-white hover:text-black transition-all">
-            WhatsApp Support
-          </button>
+          <a
+            href="https://wa.me/97477250484"
+            target="_blank"
+            className="bg-black text-white px-12 py-5 rounded-2xl text-[10px] tracking-[0.4em] uppercase font-bold hover:bg-white hover:text-black transition-all"
+          >
+            Whatsapp Support
+          </a>
         </div>
       </div>
     </div>
