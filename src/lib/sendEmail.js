@@ -13,7 +13,7 @@ export const sendOrderEmail = async (order) => {
   const itemsText = order.items
     .map(
       (item) =>
-        `${item.title} (Color: ${item.color || "Default"}, Size: ${item.size || "N/A"}) x${item.quantity} - ৳${item.price}`
+        `${item.title} (Color: ${item.color || "Default"}, Size: ${item.size || "N/A"}) x${item.quantity} - QAR${item.price}`
     )
     .join("\n");
 
@@ -32,7 +32,7 @@ Location: ${order.location}
 Items:
 ${itemsText}
 
-Total: ৳${order.totalPrice}
+Total: QAR${order.totalPrice}
 Status: ${order.status}
     `,
   });

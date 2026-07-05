@@ -1,5 +1,4 @@
 import { connectDB } from "@/lib/db";
-// import { Order } from "@/models/Order";
 import { Order } from "@/models/Order";
 import { NextResponse } from "next/server";
 import { sendOrderEmail } from "@/lib/sendEmail";
@@ -9,7 +8,6 @@ export const dynamic = "force-dynamic";
 export async function POST(req) {
   try {
     await connectDB();
-
     const body = await req.json();
 
     const { customerName, phone, email, location, items, totalPrice } = body;
@@ -27,11 +25,12 @@ export async function POST(req) {
       email,
       location,
       items: items.map((item) => ({
-        productId: item._id || item.productId,
+        productId: item.productId || item._id || item.id,
         title: item.title,
         price: item.price,
         quantity: item.quantity,
         size: item.size,
+        color: item.color, // 🔥 ADDED COLOR HERE
       })),
       totalPrice,
     });
@@ -44,7 +43,6 @@ export async function POST(req) {
     });
   } catch (error) {
     console.error("🔥 ORDER ERROR FULL:", error);
-
     return NextResponse.json(
       { success: false, error: "Order failed" },
       { status: 500 },
@@ -52,31 +50,9 @@ export async function POST(req) {
   }
 }
 
-// GET ALL ORDERS (ADMIN)
-// export async function GET() {
-//   try {
-//     await connectDB();
-
-//     const orders = await Order.find()
-//       .populate("items.productId")
-//       .sort({ createdAt: -1 });
-
-//     return NextResponse.json({
-//       success: true,
-//       orders,
-//     });
-//   } catch (error) {
-//     return NextResponse.json(
-//       { success: false, error: "Failed to fetch orders" },
-//       { status: 500 },
-//     );
-//   }
-// }
-
 export async function GET() {
   try {
     await connectDB();
-
     const orders = await Order.find().sort({ createdAt: -1 });
 
     return NextResponse.json({
@@ -85,10 +61,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error("ORDER GET ERROR:", error);
-
     return NextResponse.json(
       { success: false, error: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

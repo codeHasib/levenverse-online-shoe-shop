@@ -34,6 +34,7 @@ const orderSchema = new mongoose.Schema(
         price: Number,
         quantity: Number,
         size: String,
+        color: String, // 🔥 ADDED COLOR HERE
       },
     ],
 

@@ -38,7 +38,7 @@ export default function CheckoutPage() {
   }, []);
 
   const subtotal = useMemo(() => getTotalPrice(), [cart]);
-  const deliveryCharge = 10; // Static flat rate for Qatar
+  const deliveryCharge = 10;
   const finalTotal = subtotal + deliveryCharge;
 
   const handleGetLocation = () => {
@@ -79,10 +79,11 @@ export default function CheckoutPage() {
       location: form.address,
       deliveryCharge,
       items: cart.map((item) => ({
-        productId: item._id,
+        productId: item._id || item.id || item.productId,
         title: item.title,
         price: item.price,
         size: item.size,
+        color: item.color, // 🔥 ADDED COLOR HERE
         quantity: item.quantity,
       })),
       totalPrice: finalTotal,
@@ -98,7 +99,7 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (data.success) {
         clearCart();
-        setShowSuccess(true); // Show success screen
+        setShowSuccess(true);
       } else {
         alert(data.error || "Order failed");
       }
@@ -111,7 +112,6 @@ export default function CheckoutPage() {
 
   if (!hydrated) return null;
 
-  // --- SUCCESS VIEW ---
   if (showSuccess) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-6">
@@ -134,9 +134,7 @@ export default function CheckoutPage() {
               Order Received
             </h2>
             <p className="text-[11px] tracking-widest text-neutral-400 uppercase leading-loose">
-              Thank you for shopping with LevenVerse. <br />A confirmation email
-              has been sent to{" "}
-              <span className="text-black font-bold">{form.email}</span>.
+              Thank you for shopping with LevenVerse.
             </p>
           </div>
           <Link
@@ -153,7 +151,6 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-white pt-28 pb-20 px-6">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-16">
-        {/* --- LEFT: CART ITEMS --- */}
         <div className="lg:col-span-7">
           <div className="mb-12">
             <h2 className="text-2xl tracking-[0.4em] uppercase font-normal text-black mb-2">
@@ -165,79 +162,91 @@ export default function CheckoutPage() {
           {cart.length > 0 ? (
             <div className="space-y-8">
               <AnimatePresence mode="popLayout">
-                {cart.map((item) => (
-                  <motion.div
-                    layout
-                    key={`${item._id}-${item.size}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    className="flex gap-8 border-b border-neutral-100 pb-8"
-                  >
-                    <div className="relative w-28 h-36 bg-[#f9f9f9] rounded-xl overflow-hidden">
-                      <Image
-                        src={item.images?.[0] || "/placeholder.png"}
-                        alt={item.title}
-                        fill
-                        className="object-contain p-4"
-                      />
-                    </div>
+                {cart.map((item) => {
+                  // ✅ Define a secure identifier for all store operations
+                  const itemId = item._id || item.id || item.productId;
 
-                    <div className="flex-1 flex flex-col justify-between pt-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-[11px] tracking-[0.3em] uppercase text-black mb-1 font-bold">
-                            {item.title}
-                          </h3>
-                          <p className="text-[9px] text-neutral-400 uppercase tracking-widest">
-                            Size: {item.size}
+                  return (
+                    <motion.div
+                      layout
+                      key={`${itemId}-${item.size}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className="flex gap-8 border-b border-neutral-100 pb-8"
+                    >
+                      <div className="relative w-28 h-36 bg-[#f9f9f9] rounded-xl overflow-hidden">
+                        <Image
+                          src={item.images?.[0] || "/placeholder.png"}
+                          alt={item.title}
+                          fill
+                          className="object-contain p-4"
+                        />
+                      </div>
+
+                      <div className="flex-1 flex flex-col justify-between pt-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-[11px] tracking-[0.3em] uppercase text-black mb-1 font-bold">
+                              {item.title}
+                            </h3>
+                            <p className="text-[9px] text-neutral-400 uppercase tracking-widest">
+                              Size: {item.size}{" "}
+                              {item.color && `| Color: ${item.color}`}{" "}
+                              {/* 🔥 DISPLAY COLOR */}
+                            </p>
+                          </div>
+                          <button
+                            // 🔥 PASS COLOR TO REMOVE FUNCTION
+                            onClick={() =>
+                              removeFromCart(itemId, item.size, item.color)
+                            }
+                            className="text-neutral-300 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 size={16} strokeWidth={1.5} />
+                          </button>
+                        </div>
+
+                        <div className="flex justify-between items-end">
+                          <div className="flex items-center border border-neutral-100 rounded-lg overflow-hidden">
+                            <button
+                              onClick={() =>
+                                updateQuantity(
+                                  itemId,
+                                  item.size,
+                                  item.color, // 🔥 PASS COLOR BEFORE QUANTITY
+                                  Math.max(1, Number(item.quantity) - 1),
+                                )
+                              }
+                              className="px-3 py-2 hover:bg-neutral-50 transition-colors"
+                            >
+                              <Minus size={10} />
+                            </button>
+                            <span className="text-[11px] w-8 text-center font-bold">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                updateQuantity(
+                                  itemId,
+                                  item.size,
+                                  item.color, // 🔥 PASS COLOR BEFORE QUANTITY
+                                  Number(item.quantity) + 1,
+                                )
+                              }
+                              className="px-3 py-2 hover:bg-neutral-50 transition-colors"
+                            >
+                              <Plus size={10} />
+                            </button>
+                          </div>
+                          <p className="text-sm tracking-tighter text-black font-medium">
+                            QAR {item.price * item.quantity}
                           </p>
                         </div>
-                        <button
-                          onClick={() => removeFromCart(item._id, item.size)}
-                          className="text-neutral-300 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 size={16} strokeWidth={1.5} />
-                        </button>
                       </div>
-
-                      <div className="flex justify-between items-end">
-                        <div className="flex items-center border border-neutral-100 rounded-lg overflow-hidden">
-                          <button
-                            onClick={() =>
-                              updateQuantity(
-                                item._id,
-                                item.size,
-                                Math.max(1, item.quantity - 1),
-                              )
-                            }
-                            className="px-3 py-2 hover:bg-neutral-50 transition-colors"
-                          >
-                            <Minus size={10} />
-                          </button>
-                          <span className="text-[11px] w-8 text-center font-bold">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() =>
-                              updateQuantity(
-                                item._id,
-                                item.size,
-                                item.quantity + 1,
-                              )
-                            }
-                            className="px-3 py-2 hover:bg-neutral-50 transition-colors"
-                          >
-                            <Plus size={10} />
-                          </button>
-                        </div>
-                        <p className="text-sm tracking-tighter text-black font-medium">
-                          QAR {item.price * item.quantity}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </div>
           ) : (
@@ -260,7 +269,7 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        {/* --- RIGHT: CHECKOUT & DELIVERY --- */}
+        {/* --- RIGHT: CHECKOUT & DELIVERY (Unchanged but included for completeness) --- */}
         {cart.length > 0 && (
           <div className="lg:col-span-5">
             <div className="sticky top-32 space-y-6">
