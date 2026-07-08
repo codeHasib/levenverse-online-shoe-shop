@@ -10,14 +10,14 @@ export default function ProductCard({ product, featured }) {
   return (
     <div
       key={product._id}
-      className={`group relative bg-white border flex flex-col p-4 transition-all duration-500 rounded-2xl ${
+      className={`group relative border flex flex-col transition-all duration-500 ${
         isOutOfStock
           ? "border-neutral-100 opacity-80" // Disabled state styling
           : "border-neutral-100 hover:border-[#0070f3]" // Active state styling
       }`}
     >
       {/* 1. PRODUCT IMAGE - Sharp & Framed */}
-      <div className="relative aspect-square overflow-hidden bg-[#f8f8f8] flex items-center justify-center rounded-2xl">
+      <div className="relative aspect-square overflow-hidden bg-[#f8f8f8] flex items-center justify-center">
         {product.images && product.images[0] ? (
           <Image
             src={product.images[0]}
@@ -53,7 +53,7 @@ export default function ProductCard({ product, featured }) {
       </div>
 
       {/* 2. PRODUCT INFO - Minimalist Layout */}
-      <div className="mt-6 flex flex-col space-y-4">
+      <div className="mt-6 flex flex-col space-y-4 p-4">
         <div className="flex justify-between items-start gap-4">
           <div className="flex flex-col gap-1 min-w-0">
             <p className="text-neutral-400 text-[9px] tracking-[0.3em] uppercase truncate">

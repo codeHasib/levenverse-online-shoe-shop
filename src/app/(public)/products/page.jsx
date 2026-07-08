@@ -99,7 +99,7 @@ export default function ProductsPage() {
           <div className="space-y-24">
             {isLoading ? (
               <section>
-                <div className="h-4 w-32 bg-neutral-50 animate-pulse mb-10 rounded" />
+                <div className="h-4 w-32 bg-neutral-50 animate-pulse mb-10" />
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-12">
                   {[...Array(8)].map((_, i) => (
                     <ProductSkeleton key={i} />
@@ -132,7 +132,7 @@ export default function ProductsPage() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             key={product._id}
-                            className={`group relative flex flex-col h-full border p-2 rounded-2xl transition-all duration-500 ${
+                            className={`group relative flex flex-col h-full border transition-all duration-500 ${
                               isOutOfStock
                                 ? "border-neutral-100 opacity-80"
                                 : "border-neutral-100 hover:shadow-xl hover:shadow-black/5"
@@ -145,7 +145,7 @@ export default function ProductsPage() {
                                   router.push(`/products/${product._id}`);
                                 }
                               }}
-                              className={`relative aspect-[3/4] overflow-hidden rounded-2xl ${
+                              className={`relative aspect-[3/4] overflow-hidden ${
                                 isOutOfStock
                                   ? "cursor-not-allowed"
                                   : "cursor-pointer"
@@ -155,7 +155,7 @@ export default function ProductsPage() {
                                 src={product.images?.[0] || "/placeholder.png"}
                                 alt={product.title}
                                 fill
-                                className={`object-contain rounded-2xl transition-all duration-700 ${
+                                className={`object-contain transition-all duration-700 ${
                                   isOutOfStock
                                     ? "grayscale-[60%] opacity-60"
                                     : "group-hover:scale-105"
@@ -173,7 +173,7 @@ export default function ProductsPage() {
                             </div>
 
                             {/* --- PRODUCT INFO --- */}
-                            <div className="mt-4 sm:mt-6 space-y-3 flex-1 flex flex-col justify-between">
+                            <div className="mt-4 sm:mt-6 space-y-3 flex-1 flex flex-col justify-between p-2">
                               <div className="space-y-1">
                                 <h3
                                   className={`text-[10px] sm:text-[11px] tracking-[0.2em] uppercase leading-tight line-clamp-2 ${
@@ -206,7 +206,7 @@ export default function ProductsPage() {
                                   </button>
                                 ) : (
                                   <>
-                                    <button
+                                    {/* <button
                                       onClick={() => {
                                         addToCart(
                                           product,
@@ -231,7 +231,7 @@ export default function ProductsPage() {
                                       className="w-full md:w-1/2 border border-neutral-100 py-3 px-3 text-[8px] sm:text-[9px] uppercase font-bold rounded-lg hover:bg-neutral-50 transition-colors"
                                     >
                                       Add to Bag
-                                    </button>
+                                    </button> */}
                                   </>
                                 )}
                               </div>
