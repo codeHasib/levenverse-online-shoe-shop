@@ -75,13 +75,13 @@ export default function ProductsPage() {
 
   return (
     <>
-      <div className="relative w-full h-[230px] md:h-[600px] overflow-hidden">
+      <div className="relative w-full h-[350px] sm:h-[450px] md:h-[600px] lg:h-[900px]">
         <Image
           src={BannerImg}
           alt="Levenverse Discount Banner"
           fill
           priority
-          className="object-cover object-center"
+          className="object-fill"
         />
       </div>
       <div className="min-h-screen bg-white pt-10 pb-10 px-6">
