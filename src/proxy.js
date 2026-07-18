@@ -26,13 +26,17 @@ export function proxy(request) {
     return NextResponse.next();
   }
 
-  // 🔐 protect only WRITE actions
-  if (
-    isWriteMethod &&
-    (isProductApi || isOrderApi || isCategoryApi || isReviewApi)
-  ) {
-    if (!sessionCookie) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  // 🔐 Protect WRITE actions dynamically
+  if (isWriteMethod) {
+    // 🟢 EXCEPTION: Allow unauthenticated users to create (POST) an order
+    if (isOrderApi && method === "POST") {
+      // Do nothing, let the request pass through to the API route
+    } 
+    // 🔴 BLOCK: All other write actions require authentication
+    else if (isProductApi || isOrderApi || isCategoryApi || isReviewApi) {
+      if (!sessionCookie) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
     }
   }
 
