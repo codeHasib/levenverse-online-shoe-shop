@@ -10,11 +10,26 @@ export async function POST(req) {
     await connectDB();
     const body = await req.json();
 
-    const { customerName, phone, email, location, items, totalPrice } = body;
+    const {
+      customerName,
+      phone,
+      email,
+      location,
+      items,
+      totalPrice,
+      deliveryCharge,
+    } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json(
         { success: false, error: "Cart is empty" },
+        { status: 400 },
+      );
+    }
+
+    if (!customerName || !phone || !location) {
+      return NextResponse.json(
+        { success: false, error: "Missing delivery details" },
         { status: 400 },
       );
     }
@@ -24,6 +39,7 @@ export async function POST(req) {
       phone,
       email,
       location,
+      deliveryCharge,
       items: items.map((item) => ({
         productId: item.productId || item._id || item.id,
         title: item.title,
@@ -35,7 +51,12 @@ export async function POST(req) {
       totalPrice,
     });
 
-    await sendOrderEmail(order);
+    // Email is a side-effect: never let it fail the order.
+    try {
+      await sendOrderEmail(order);
+    } catch (emailError) {
+      console.error("ORDER EMAIL ERROR:", emailError);
+    }
 
     return NextResponse.json({
       success: true,
